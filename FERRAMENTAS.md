@@ -4,8 +4,9 @@
 
 | Para quê | Comando |
 |---|---|
+| **Montar e jogar na janela do simulador do professor** | `./rodar.sh` (na janela: Home liga) |
 | Montar o jogo | `../material/bin/montador jogo.asm` (gera `jogo.mif`) |
-| Jogar no terminal | `python3 ferramentas/jogar.py jogo.mif` (Esc sai) |
+| Jogar no terminal (reserva, sem GTK) | `python3 ferramentas/jogar.py jogo.mif` (Esc sai) |
 | Ver a tela depois de N instruções | `python3 ferramentas/icmc.py jogo.mif --passos 800000 --teclas "100000:enter"` |
 | Partida automática (teste) | `python3 ferramentas/joga_teste.py --acoes 4` |
 | Testar números da mecânica | `python3 balanceamento/sim.py` |
@@ -33,13 +34,26 @@ Comandos a partir de `oac/usp-oac-trabalho/`.
 
 ## Simulador gráfico oficial
 
-- Código: `Simulator_Source/` do repo do professor. Precisa de GTK2 e SDL2:
-  ```
-  cd oac/material/Processador-ICMC/Simulator_Source && ./compila.sh
-  ./sim ../../../usp-oac-trabalho/jogo.mif ../../../usp-oac-trabalho/charmap.mif
-  ```
-- No Arch o GTK2 saiu dos repositórios oficiais: `yay -S gtk2` (AUR, compila por alguns minutos). Em 16/10/2026 a primeira tentativa não terminou de instalar.
-- Teclas do simulador: Home liga e para a execução, Insert reseta, End executa um passo, Esc fecha. O jogo não deve usar essas.
+É o jeito do professor: `montador` gera o `.mif` e `sim jogo.mif charmap.mif` abre a janela com a tela do processador. Código em `Simulator_Source/` do repo dele; precisa de GTK2 e SDL2.
+
+**GTK2 no Arch** (saiu dos repositórios; `yay -S gtk2` falhou no meio em 16/10/2026). Compilado sem sudo numa pasta local, a partir do código que o yay baixou:
+```
+cp -r ~/.cache/yay/gtk2/src/gtk /tmp/gtk2 && cd /tmp/gtk2
+make distclean
+CFLAGS="-O2 -Wno-error=implicit-int -Wno-error=incompatible-pointer-types -Wno-error=implicit-function-declaration -Wno-error=int-conversion -std=gnu17" \
+  ./configure --prefix=$HOME/.local/opt/gtk2 --with-xinput=yes --disable-gtk-doc --disable-introspection
+make -j$(nproc) && make install
+```
+
+**Compilar o simulador** contra esse GTK2 (o rpath dispensa `LD_LIBRARY_PATH`):
+```
+cd oac/material/Processador-ICMC/Simulator_Source
+export PKG_CONFIG_PATH=$HOME/.local/opt/gtk2/lib/pkgconfig
+g++ main.cpp View.cpp Controller.cpp Sound.cpp Model.cpp -O3 -march=native -o ../../bin/sim \
+  $(pkg-config --libs --cflags gtk+-2.0) -pthread -lgthread-2.0 -lSDL2 -Wl,-rpath,$HOME/.local/opt/gtk2/lib
+```
+
+- Teclas da janela: Home liga e para a execução, Insert reseta, End executa um passo, Esc fecha. O jogo não deve usar essas.
 - Alternativa sem instalar nada: simulador web https://proc.giroto.dev/ (beta).
 
 ## Emulador em Python (`ferramentas/icmc.py`)

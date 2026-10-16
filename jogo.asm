@@ -6,8 +6,9 @@
 ;  Regras e balanceamento: DESIGN.md
 ;
 ;  Tela (40 x 30 caracteres):
-;    linhas 0 a 23  : cidade, grid de 20 x 12 blocos de 2 x 2 caracteres
-;    linhas 24 a 29 : painel (dinheiro, populacao, gargalo, energia, roleta)
+;    linhas 0 a 4   : painel (dinheiro, populacao, gargalo, energia, roleta)
+;    linha 5        : separador
+;    linhas 6 a 29  : cidade, grid de 20 x 12 blocos de 2 x 2 caracteres
 ;
 ;  Convencoes:
 ;    - populacao, casas, servico e empregos sao guardados em DEZENAS de
@@ -236,7 +237,7 @@ Subtick:
     push r1
     push r2
     load r0, subtick
-    loadn r1, #1167             ; posicao do primeiro '=' da barra (linha 29)
+    loadn r1, #167             ; posicao do primeiro '=' da barra (linha 4)
     add r1, r1, r0
     loadn r2, #'='
     outchar r2, r1
@@ -333,22 +334,22 @@ DesenhaTudo:
     push r2
     call ApagaTela
     loadn r2, #0
-    loadn r0, #960
+    loadn r0, #200
     loadn r1, #txtLinha
     call ImprimeStr
-    loadn r0, #1000
+    loadn r0, #0
     loadn r1, #txtHud1
     call ImprimeStr
-    loadn r0, #1040
+    loadn r0, #40
     loadn r1, #txtHud2
     call ImprimeStr
-    loadn r0, #1080
+    loadn r0, #80
     loadn r1, #txtHud3
     call ImprimeStr
-    loadn r0, #1120
+    loadn r0, #120
     loadn r1, #txtHud4
     call ImprimeStr
-    loadn r0, #1160
+    loadn r0, #160
     loadn r1, #txtHud5
     call ImprimeStr
     call Recalcula
@@ -389,7 +390,7 @@ DesenhaBloco:
     push r6
 
     ; r2 = posicao na tela do canto superior esquerdo
-    ;    = (bloco / 20) * 80 + (bloco % 20) * 2
+    ;    = 240 + (bloco / 20) * 80 + (bloco % 20) * 2
     loadn r1, #20
     div r2, r0, r1
     mod r3, r0, r1
@@ -397,6 +398,8 @@ DesenhaBloco:
     mul r2, r2, r1
     add r2, r2, r3
     add r2, r2, r3
+    loadn r1, #240              ; o mapa comeca na linha 6
+    add r2, r2, r1
 
     loadn r1, #tipo
     add r1, r1, r0
@@ -1060,7 +1063,7 @@ Tick_fimCidade:
 Tick_hud:
     loadn r0, #0                ; zera a barra de ritmo
     store subtick, r0
-    loadn r0, #1167
+    loadn r0, #167
     loadn r1, #msgLimpa
     loadn r2, #0
     call ImprimeStr10
@@ -1139,12 +1142,12 @@ DesenhaHud:
     push r5
 
     load r0, dinheiro
-    loadn r1, #1014
+    loadn r1, #14
     loadn r2, #5
     loadn r3, #0
     call ImprimeNum
     load r0, popul
-    loadn r1, #1033
+    loadn r1, #33
     call ImprimeNum0
 
     ; r4 = gargalo
@@ -1161,15 +1164,15 @@ DesenhaHud_g2:
 
 DesenhaHud_casas:
     load r0, totR
-    loadn r1, #1049
+    loadn r1, #49
     call CorGargalo
     call ImprimeNum0
     load r0, totC
-    loadn r1, #1062
+    loadn r1, #62
     call CorGargalo
     call ImprimeNum0
     load r0, totI
-    loadn r1, #1075
+    loadn r1, #75
     call CorGargalo
     call ImprimeNum0
 
@@ -1181,11 +1184,11 @@ DesenhaHud_casas:
     loadn r3, #2304
 DesenhaHud_energia:
     load r0, cons
-    loadn r1, #1091
+    loadn r1, #91
     loadn r2, #4
     call ImprimeNum
     load r0, prod
-    loadn r1, #1096
+    loadn r1, #96
     call ImprimeNum
 
     loadn r3, #0                ; tempo = ticks * 10 s
@@ -1196,10 +1199,10 @@ DesenhaHud_energia:
     loadn r1, #60
     div r5, r0, r1
     mod r0, r0, r1
-    loadn r1, #1110
+    loadn r1, #110
     call ImprimeNum
     mov r0, r5
-    loadn r1, #1107
+    loadn r1, #107
     call ImprimeNum
 
     pop r5
@@ -1231,7 +1234,7 @@ DesenhaRoleta:
     mul r1, r0, r1
     loadn r2, #nomes
     add r1, r1, r2
-    loadn r0, #1124
+    loadn r0, #124
     loadn r2, #2816             ; amarelo
     call ImprimeStr
     load r0, ferr               ; preco = custo[ferr + 1] (demolir mostra 0)
@@ -1244,7 +1247,7 @@ DesenhaRoleta_preco:
     loadn r1, #custo
     add r1, r1, r0
     loadi r0, r1
-    loadn r1, #1142
+    loadn r1, #142
     loadn r2, #5
     loadn r3, #0
     call ImprimeNum
@@ -1258,7 +1261,7 @@ DesenhaRoleta_preco:
 Mensagem:
     push r0
     push r2
-    loadn r0, #1180
+    loadn r0, #180
     loadn r2, #2304
     call ImprimeStr
     pop r2

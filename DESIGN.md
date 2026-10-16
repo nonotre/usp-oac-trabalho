@@ -66,18 +66,18 @@ Fica para depois: poluição.
 
 ## Tela e controles
 
-- Cidade em grid de blocos de 2×2 caracteres: 20×12 = 240 blocos nas linhas 0 a 23; painel nas linhas 24 a 29.
+- Painel no topo (linhas 0 a 4), separador na linha 5, cidade em grid de blocos de 2×2 caracteres: 20×12 = 240 blocos nas linhas 6 a 29.
 - Bloco selecionado em rosa; bloco vazio selecionado vira `[]`.
 - WASD ou setas movem a seleção. J e K giram a roleta (casa, comércio, indústria, usina pequena, usina grande, demolir). Espaço aplica. `+` adianta uma atualização (para testar e apresentar).
 - Demolir devolve metade do custo.
 - Apagão: a energia é entregue aos blocos em ordem (de cima para baixo, da esquerda para a direita); quem passa da produção fica sem luz, em cinza, e não conta para casas, serviço, empregos nem receita.
 
 **Painel:**
-- Linha 25: dinheiro e população.
-- Linha 26: casas, serviço e empregos, com o gargalo (o menor) em vermelho.
-- Linha 27: energia `consumo/produção` (vermelha no apagão) e tempo.
-- Linha 28: roleta, com nome e preço.
-- Linha 29: barra de ritmo (10 partes = 1 atualização) e mensagens.
+- Linha 0: dinheiro e população.
+- Linha 1: casas, serviço e empregos, com o gargalo (o menor) em vermelho.
+- Linha 2: energia `consumo/produção` (vermelha no apagão) e tempo.
+- Linha 3: roleta, com nome e preço.
+- Linha 4: barra de ritmo (10 partes = 1 atualização) e mensagens.
 
 **Desenhos provisórios** (letras do charmap padrão; a arte fica para a etapa de design):
 

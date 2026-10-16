@@ -30,9 +30,10 @@ Cidade simplificada no estilo SimCity: chegar a 100 mil habitantes equilibrando 
 | `DESIGN.md` | regras, números e controles |
 | `FERRAMENTAS.md` | como montar, rodar e testar; comportamento do simulador |
 | `balanceamento/sim.py` | simulação da economia |
+| `rodar.sh` | monta e abre no simulador gráfico |
 | `ferramentas/` | emulador em Python, modo de jogar no terminal, partida automática |
 
-Jogar rápido: `../material/bin/montador jogo.asm && python3 ferramentas/jogar.py jogo.mif`
+Jogar: `./rodar.sh` monta e abre no simulador do professor; na janela, Home liga a execução. Instalação em `FERRAMENTAS.md`.
 
 ## Ferramentas
 
