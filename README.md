@@ -17,6 +17,10 @@ O repositório deve ter:
 
 Sem data de entrega marcada: a apresentação é presencial, na sala, nas últimas semanas do semestre, para todos os alunos do grupo. O grupo se inscreve na planilha do professor com título, nomes e link do repo.
 
+## Jogo
+
+Cidade simplificada no estilo SimCity: chegar a 100 mil habitantes equilibrando casas, comércio, indústria e energia. Regras e balanceamento em [`DESIGN.md`](DESIGN.md).
+
 ## Grupo
 
 A definir.
