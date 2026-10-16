@@ -1,0 +1,3 @@
+*.mif
+!charmap.mif
+__pycache__/

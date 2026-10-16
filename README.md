@@ -21,6 +21,19 @@ Sem data de entrega marcada: a apresentação é presencial, na sala, nas últim
 
 Cidade simplificada no estilo SimCity: chegar a 100 mil habitantes equilibrando casas, comércio, indústria e energia. Regras e balanceamento em [`DESIGN.md`](DESIGN.md).
 
+## Arquivos
+
+| Arquivo | O quê |
+|---|---|
+| `jogo.asm` | o jogo |
+| `charmap.mif` | caracteres (por enquanto o padrão do professor) |
+| `DESIGN.md` | regras, números e controles |
+| `FERRAMENTAS.md` | como montar, rodar e testar; comportamento do simulador |
+| `balanceamento/sim.py` | simulação da economia |
+| `ferramentas/` | emulador em Python, modo de jogar no terminal, partida automática |
+
+Jogar rápido: `../material/bin/montador jogo.asm && python3 ferramentas/jogar.py jogo.mif`
+
 ## Ferramentas
 
 | Para quê | O quê |

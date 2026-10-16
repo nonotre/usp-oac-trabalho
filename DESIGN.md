@@ -64,8 +64,36 @@ Pontos fracos conhecidos:
 
 Fica para depois: poluição.
 
-## Tela e controles (proposta, em discussão)
+## Tela e controles
 
 - Cidade em grid de blocos de 2×2 caracteres: 20×12 = 240 blocos nas linhas 0 a 23; painel nas linhas 24 a 29.
-- Bloco selecionado destacado por troca de cor; WASD move a seleção.
-- Roleta circular de ações: J volta, K avança, espaço aplica no bloco selecionado.
+- Bloco selecionado em rosa; bloco vazio selecionado vira `[]`.
+- WASD ou setas movem a seleção. J e K giram a roleta (casa, comércio, indústria, usina pequena, usina grande, demolir). Espaço aplica. `+` adianta uma atualização (para testar e apresentar).
+- Demolir devolve metade do custo.
+- Apagão: a energia é entregue aos blocos em ordem (de cima para baixo, da esquerda para a direita); quem passa da produção fica sem luz, em cinza, e não conta para casas, serviço, empregos nem receita.
+
+**Painel:**
+- Linha 25: dinheiro e população.
+- Linha 26: casas, serviço e empregos, com o gargalo (o menor) em vermelho.
+- Linha 27: energia `consumo/produção` (vermelha no apagão) e tempo.
+- Linha 28: roleta, com nome e preço.
+- Linha 29: barra de ritmo (10 partes = 1 atualização) e mensagens.
+
+**Desenhos provisórios** (letras do charmap padrão; a arte fica para a etapa de design):
+
+| Bloco | Nível 1 | Nível 2 | Nível 3 |
+|---|---|---|---|
+| Casa (lima) | `R` num canto | `RR` em cima | `RR/RR` |
+| Comércio (aqua) | `C` | `CC` | `CC/CC` |
+| Indústria (amarelo) | `I` | `II` | `II/II` |
+| Usina pequena / grande (branco) | `Up/==` e `UG/##` | | |
+
+## Conferência com a simulação
+
+`ferramentas/joga_teste.py` joga o `jogo.mif` no emulador com a estratégia do `sim.py`:
+
+| Jogador | `sim.py` | `jogo.asm` |
+|---|---|---|
+| 4 construções a cada 10 s | 9,0 min | 9,2 min |
+| 2 construções | 12,2 min | 12,3 min |
+| 1 construção | 18,5 min | 18,7 min |
