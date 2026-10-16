@@ -21,6 +21,14 @@ Sem data de entrega marcada: a apresentação é presencial, na sala, nas últim
 
 Cidade simplificada no estilo SimCity: chegar a 100 mil habitantes equilibrando casas, comércio, indústria e energia. Regras e balanceamento em [`DESIGN.md`](DESIGN.md).
 
+## Ferramentas
+
+| Para quê | O quê |
+|---|---|
+| Escrever e rodar o jogo (tela 40×30, cores, teclado) | Montador + simulador gráfico do [Processador-ICMC](https://github.com/simoesusp/Processador-ICMC) (`NovoMontadorLinux/`, `Install_Packages/`) ou o simulador web https://proc.giroto.dev/ |
+| Requisito 3 | `Simple_Simulator/simple_simulator_template.c`: o processador em C com a máquina de estados incompleta (LOAD, STORE e outras instruções vazias). Completar e mostrar rodando o `cpuram.mif` do jogo. Grupos anteriores também acrescentaram uma instrução nova (POW, MED) |
+| Testar números da mecânica | `balanceamento/sim.py` |
+
 ## Grupo
 
 A definir.
