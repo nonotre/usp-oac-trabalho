@@ -93,6 +93,8 @@ Fica para depois: poluição.
 
 Marrom claro não existe na paleta: o "marrom" do simulador é vermelho escuro (165, 42, 42).
 
+**Tela inicial:** título, objetivo numa linha (com a pessoinha), legenda com o desenho de cada construção ao lado do nome (na cor dela) e de uma frase curta, a regra do dinheiro ("quem mora e trabalha paga a luz"), os controles em duas linhas (tecla em verde, ação em branco) e "APERTE ENTER" piscando. A tela final também pisca o "APERTE ENTER". Os textos ficam numa tabela (posição, cor, texto) lida por `ImprimeTabela`.
+
 ## Conferência com a simulação
 
 `ferramentas/joga_teste.py` joga o `jogo.mif` no emulador com a estratégia do `sim.py` (1 atualização = 1 dia):

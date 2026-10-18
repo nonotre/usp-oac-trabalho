@@ -210,26 +210,92 @@ nomes : string "CASA        "
 txtHudA   : string "$                         /      DIA    "
 txtHudB   : string "CONSTRUIR:                VALOR: $      "
 
-ini1  : string "C I D A D E   I C M C"
-ini2  : string "VOCE E O PREFEITO. LEVE A CIDADE A"
-ini3  : string "100 MIL HABITANTES ATE O DIA 999."
-ini4  : string "CASA       LUGAR PARA MORAR"
-ini5  : string "COMERCIO   SEM ELE O POVO VAI EMBORA"
-ini6  : string "INDUSTRIA  SEM EMPREGO O POVO SAI"
-ini7  : string "USINA      ENERGIA, MAS TEM LIMITE"
-ini8  : string "QUEM MORA E TRABALHA PAGA A LUZ:"
-ini9  : string "E DAI QUE VEM O DINHEIRO."
-ini10 : string "WASD OU SETAS  ANDAR"
-ini11 : string "J / K          ESCOLHER A ACAO"
-ini12 : string "ESPACO         CONSTRUIR"
-ini13 : string "+              ADIANTAR O TEMPO"
-ini14 : string "ENTER PARA COMECAR"
+; Tela inicial: textos e a tabela (posicao, cor, texto) que ImprimeTabela le
+iniTitulo : string "C I D A D E   I C M C"
+iniObj    : string "LEVE A CIDADE A   100000 ATE O DIA 999"
+iniCasa   : string "CASA"
+iniCasaD  : string "ONDE O POVO MORA"
+iniCom    : string "COMERCIO"
+iniComD   : string "SEM ELE O POVO VAI EMBORA"
+iniInd    : string "INDUSTRIA"
+iniIndD   : string "SEM EMPREGO O POVO SAI"
+iniUsi    : string "USINA"
+iniUsiD   : string "DA ENERGIA, MAS TEM LIMITE"
+iniLuz    : string "QUEM MORA E TRABALHA PAGA A LUZ"
+iniT1     : string "WASD/SETAS"
+iniA1     : string "ANDAR"
+iniT2     : string "J/K"
+iniA2     : string "ESCOLHER"
+iniT3     : string "ESPACO"
+iniA3     : string "CONSTRUIR"
+iniT4     : string "+"
+iniA4     : string "PASSA O DIA"
+iniEnter  : string "APERTE ENTER"
+tabInicio : var #58
+static tabInicio + #0, #129
+static tabInicio + #1, #2816
+static tabInicio + #2, #iniTitulo
+static tabInicio + #3, #241
+static tabInicio + #4, #0
+static tabInicio + #5, #iniObj
+static tabInicio + #6, #368
+static tabInicio + #7, #2816
+static tabInicio + #8, #iniCasa
+static tabInicio + #9, #408
+static tabInicio + #10, #0
+static tabInicio + #11, #iniCasaD
+static tabInicio + #12, #488
+static tabInicio + #13, #3328
+static tabInicio + #14, #iniCom
+static tabInicio + #15, #528
+static tabInicio + #16, #0
+static tabInicio + #17, #iniComD
+static tabInicio + #18, #608
+static tabInicio + #19, #2048
+static tabInicio + #20, #iniInd
+static tabInicio + #21, #648
+static tabInicio + #22, #0
+static tabInicio + #23, #iniIndD
+static tabInicio + #24, #728
+static tabInicio + #25, #2304
+static tabInicio + #26, #iniUsi
+static tabInicio + #27, #768
+static tabInicio + #28, #0
+static tabInicio + #29, #iniUsiD
+static tabInicio + #30, #844
+static tabInicio + #31, #2816
+static tabInicio + #32, #iniLuz
+static tabInicio + #33, #964
+static tabInicio + #34, #3584
+static tabInicio + #35, #iniT1
+static tabInicio + #36, #975
+static tabInicio + #37, #0
+static tabInicio + #38, #iniA1
+static tabInicio + #39, #985
+static tabInicio + #40, #3584
+static tabInicio + #41, #iniT2
+static tabInicio + #42, #989
+static tabInicio + #43, #0
+static tabInicio + #44, #iniA2
+static tabInicio + #45, #1004
+static tabInicio + #46, #3584
+static tabInicio + #47, #iniT3
+static tabInicio + #48, #1015
+static tabInicio + #49, #0
+static tabInicio + #50, #iniA3
+static tabInicio + #51, #1025
+static tabInicio + #52, #3584
+static tabInicio + #53, #iniT4
+static tabInicio + #54, #1029
+static tabInicio + #55, #0
+static tabInicio + #56, #iniA4
+static tabInicio + #57, #65535          ; fim da tabela
 
 fim1 : string "1 0 0   M I L   H A B I T A N T E S"
 fim2 : string "EM     DIAS"
 fimP1 : string "O PRAZO ACABOU"
 fimP2 : string "DIA 999 COM        HABITANTES"
-fim3 : string "ENTER PARA JOGAR DE NOVO"
+fim3 : string "APERTE ENTER PARA JOGAR DE NOVO"
 
 ; ============================================================================
 ;  Programa principal
@@ -548,25 +614,10 @@ DesenhaBloco_acende:
     loadn r6, #0                ; predio em branco
 
 DesenhaBloco_desenha:
-    loadi r1, r5
-    add r1, r1, r6
-    outchar r1, r2
-    inc r5
-    inc r2
-    loadi r1, r5
-    add r1, r1, r6
-    outchar r1, r2
-    inc r5
-    loadn r1, #39               ; desce uma linha e volta uma coluna
-    add r2, r2, r1
-    loadi r1, r5
-    add r1, r1, r6
-    outchar r1, r2
-    inc r5
-    inc r2
-    loadi r1, r5
-    add r1, r1, r6
-    outchar r1, r2
+    mov r0, r2
+    mov r1, r5
+    mov r2, r6
+    call DesenhaGlifo
 
     pop r6
     pop r5
@@ -1580,18 +1631,106 @@ GeraTerreno_pula:
     pop r0
     rts
 
-; EsperaEnter: espera a tecla ENTER (13)
+; EsperaEnter: espera ENTER (13) piscando um texto
+;   r0 = posicao, r1 = texto, r2 = cor. O texto troca a cada voltasPisca
+;   voltas (~0,5 s); apagado = impresso em preto. O tempo que o jogador demora
+;   muda a semente do sorteio.
 EsperaEnter:
+    push r3
+    push r4
+    push r5
+    push r6
+    call ImprimeStr
+    loadn r4, #0                ; voltas desde a ultima troca
+    loadn r5, #1                ; 1 = texto aceso
+EsperaEnter_loop:
+    load r3, semente
+    inc r3
+    store semente, r3
+    inchar r3
+    loadn r6, #13
+    cmp r3, r6
+    jeq EsperaEnter_fim
+    call Espera
+    inc r4
+    load r6, voltasPisca
+    cmp r4, r6
+    jne EsperaEnter_loop
+    loadn r4, #0
+    loadn r6, #1
+    xor r5, r5, r6
+    jz EsperaEnter_apaga
+    call ImprimeStr
+    jmp EsperaEnter_loop
+EsperaEnter_apaga:
+    push r2
+    loadn r2, #3840             ; preto
+    call ImprimeStr
+    pop r2
+    jmp EsperaEnter_loop
+EsperaEnter_fim:
+    pop r6
+    pop r5
+    pop r4
+    pop r3
+    rts
+
+; ImprimeTabela: r1 = tabela de textos (posicao, cor, texto)..., terminada
+; por posicao 65535
+ImprimeTabela:
     push r0
     push r1
-    loadn r1, #13
-EsperaEnter_loop:
-    load r0, semente            ; quanto tempo o jogador demora muda a semente
+    push r2
+    push r3
+    push r4
+    mov r3, r1
+    loadn r4, #65535
+ImprimeTabela_loop:
+    loadi r0, r3
+    cmp r0, r4
+    jeq ImprimeTabela_fim
+    inc r3
+    loadi r2, r3
+    inc r3
+    loadi r1, r3
+    inc r3
+    call ImprimeStr
+    jmp ImprimeTabela_loop
+ImprimeTabela_fim:
+    pop r4
+    pop r3
+    pop r2
+    pop r1
+    pop r0
+    rts
+
+; DesenhaGlifo: desenha 2 x 2 caracteres. r0 = posicao do canto superior
+; esquerdo, r1 = os 4 caracteres (sup. esq., sup. dir., inf. esq., inf. dir.),
+; r2 = cor
+DesenhaGlifo:
+    push r0
+    push r1
+    push r3
+    loadi r3, r1
+    add r3, r3, r2
+    outchar r3, r0
     inc r0
-    store semente, r0
-    inchar r0
-    cmp r0, r1
-    jne EsperaEnter_loop
+    inc r1
+    loadi r3, r1
+    add r3, r3, r2
+    outchar r3, r0
+    loadn r3, #39               ; desce uma linha e volta uma coluna
+    add r0, r0, r3
+    inc r1
+    loadi r3, r1
+    add r3, r3, r2
+    outchar r3, r0
+    inc r0
+    inc r1
+    loadi r3, r1
+    add r3, r3, r2
+    outchar r3, r0
+    pop r3
     pop r1
     pop r0
     rts
@@ -1604,57 +1743,41 @@ TelaInicio:
     push r1
     push r2
     call ApagaTela
+    loadn r1, #tabInicio
+    call ImprimeTabela
+    load r0, iconePessoa        ; pessoinha no objetivo
+    loadn r1, #257
+    outchar r0, r1
+
+    ; legenda com o desenho de cada construcao (nivel 1)
+    loadn r0, #364
+    loadn r1, #glifo
+    loadn r2, #20               ; casa: glifo + (1 * 4 + 1) * 4
+    add r1, r1, r2
     loadn r2, #2816
-    loadn r0, #129
-    loadn r1, #ini1
-    call ImprimeStr
-    loadn r2, #0
-    loadn r0, #283
-    loadn r1, #ini2
-    call ImprimeStr
-    loadn r0, #323
-    loadn r1, #ini3
-    call ImprimeStr
-    loadn r2, #2816
-    loadn r0, #403
-    loadn r1, #ini4
-    call ImprimeStr
+    call DesenhaGlifo
+    loadn r0, #484
+    loadn r1, #glifo
+    loadn r2, #36               ; comercio
+    add r1, r1, r2
     loadn r2, #3328
-    loadn r0, #443
-    loadn r1, #ini5
-    call ImprimeStr
+    call DesenhaGlifo
+    loadn r0, #604
+    loadn r1, #glifo
+    loadn r2, #52               ; industria
+    add r1, r1, r2
     loadn r2, #2048
-    loadn r0, #483
-    loadn r1, #ini6
-    call ImprimeStr
+    call DesenhaGlifo
+    loadn r0, #724
+    loadn r1, #glifo
+    loadn r2, #68               ; usina pequena
+    add r1, r1, r2
     loadn r2, #2304
-    loadn r0, #523
-    loadn r1, #ini7
-    call ImprimeStr
-    loadn r2, #0
-    loadn r0, #603
-    loadn r1, #ini8
-    call ImprimeStr
-    loadn r0, #643
-    loadn r1, #ini9
-    call ImprimeStr
-    loadn r2, #1792
-    loadn r0, #723
-    loadn r1, #ini10
-    call ImprimeStr
-    loadn r0, #763
-    loadn r1, #ini11
-    call ImprimeStr
-    loadn r0, #803
-    loadn r1, #ini12
-    call ImprimeStr
-    loadn r0, #843
-    loadn r1, #ini13
-    call ImprimeStr
+    call DesenhaGlifo
+
+    loadn r0, #1134             ; "APERTE ENTER" piscando
+    loadn r1, #iniEnter
     loadn r2, #3328
-    loadn r0, #1011
-    loadn r1, #ini14
-    call ImprimeStr
     call EsperaEnter
     pop r2
     pop r1
@@ -1703,9 +1826,8 @@ TelaFim_prazo:
 
 TelaFim_enter:
     loadn r2, #3328
-    loadn r0, #848
+    loadn r0, #845
     loadn r1, #fim3
-    call ImprimeStr
     call EsperaEnter
     pop r3
     pop r2
