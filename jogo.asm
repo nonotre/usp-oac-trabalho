@@ -62,6 +62,8 @@ dia : var #1            ; dia do jogo (1 por atualizacao, 10 s); prazo: dia 999
 subtick : var #1        ; 0 a 9: posicao na barra de ritmo
 voltas : var #1         ; voltas do laco principal desde o ultimo subtick
 resultado : var #1      ; 0 jogando, 1 venceu, 2 acabou o prazo
+subiu : var #1          ; 1 se algum bloco subiu de nivel nesta atualizacao
+apagaoAntes : var #1    ; apagao da atualizacao anterior (som so quando comeca)
 centavos : var #1       ; receita que ainda nao fechou $1 (dezesseis avos)
 usinaGratis : var #1    ; 1 = a proxima usina pequena nao custa nada
 acelerado : var #1      ; 1 = tempo 4 vezes mais rapido (tecla +)
@@ -92,10 +94,10 @@ static voltasPorSub + #0, #16100
 ; ----------------------------------------------------------------------------
 custo : var #6          ; por tipo
 static custo + #0, #0
-static custo + #1, #40
-static custo + #2, #60
-static custo + #3, #150
-static custo + #4, #400
+static custo + #1, #50
+static custo + #2, #100
+static custo + #3, #300
+static custo + #4, #600
 static custo + #5, #2500
 
 corTipo : var #6
@@ -198,6 +200,85 @@ static iconeSeta_esq + #0, #118
 iconeSeta_dir : var #1
 static iconeSeta_dir + #0, #119
 ; <<< glifos
+
+; ----------------------------------------------------------------------------
+;  Sons: instrucao SOUND do simulador do professor (frequencia em Hz,
+;  duracao em ms, onda: 0 seno, 1 quadrada, 2 triangulo, 3 dente de serra).
+;  O simulador PARA enquanto o som toca, entao so notas curtas no jogo.
+;  Cada melodia: trincas (frequencia, duracao, onda) terminadas por 0.
+; ----------------------------------------------------------------------------
+somConstroi : var #7
+static somConstroi + #0, #880
+static somConstroi + #1, #40
+static somConstroi + #2, #2
+static somConstroi + #3, #1320
+static somConstroi + #4, #60
+static somConstroi + #5, #2
+static somConstroi + #6, #0
+somDemole : var #7
+static somDemole + #0, #440
+static somDemole + #1, #40
+static somDemole + #2, #2
+static somDemole + #3, #220
+static somDemole + #4, #60
+static somDemole + #5, #2
+static somDemole + #6, #0
+somErro : var #4
+static somErro + #0, #140
+static somErro + #1, #90
+static somErro + #2, #1
+static somErro + #3, #0
+somRoleta : var #4
+static somRoleta + #0, #1200
+static somRoleta + #1, #15
+static somRoleta + #2, #2
+static somRoleta + #3, #0
+somNivel : var #7
+static somNivel + #0, #660
+static somNivel + #1, #30
+static somNivel + #2, #2
+static somNivel + #3, #990
+static somNivel + #4, #40
+static somNivel + #5, #2
+static somNivel + #6, #0
+somApagao : var #7
+static somApagao + #0, #200
+static somApagao + #1, #120
+static somApagao + #2, #3
+static somApagao + #3, #150
+static somApagao + #4, #160
+static somApagao + #5, #3
+static somApagao + #6, #0
+somEnter : var #4
+static somEnter + #0, #1047
+static somEnter + #1, #40
+static somEnter + #2, #2
+static somEnter + #3, #0
+somVitoria : var #13
+static somVitoria + #0, #523
+static somVitoria + #1, #120
+static somVitoria + #2, #1
+static somVitoria + #3, #659
+static somVitoria + #4, #120
+static somVitoria + #5, #1
+static somVitoria + #6, #784
+static somVitoria + #7, #120
+static somVitoria + #8, #1
+static somVitoria + #9, #1047
+static somVitoria + #10, #350
+static somVitoria + #11, #1
+static somVitoria + #12, #0
+somDerrota : var #10
+static somDerrota + #0, #392
+static somDerrota + #1, #220
+static somDerrota + #2, #2
+static somDerrota + #3, #330
+static somDerrota + #4, #220
+static somDerrota + #5, #2
+static somDerrota + #6, #262
+static somDerrota + #7, #450
+static somDerrota + #8, #2
+static somDerrota + #9, #0
 
 ; Nomes da roleta: 6 nomes de 12 letras + '\0' (13 posicoes cada)
 nomes : string "CASA        "
@@ -341,7 +422,7 @@ static glfTutorial + #11, #2304
 static glfTutorial + #12, #65535          ; fim da tabela
 tutEnter  : string "APERTE ENTER PARA JOGAR"
 
-fim1 : string "1 0 0   M I L   H A B I T A N T E S"
+fim1 : string "100 MIL HABITANTES"
 fim2 : string "EM     DIAS"
 fimP1 : string "SEU MANDATO ACABOU"
 fimP2 : string "DIA 999 COM        HABITANTES"
@@ -385,6 +466,17 @@ Laco_fim:
     loadn r1, #0
     cmp r0, r1
     jeq Laco
+    loadn r1, #1
+    cmp r0, r1
+    jne Laco_perdeu
+    call PiscaVitoria
+    loadn r0, #somVitoria
+    call Som
+    jmp Laco_telaFim
+Laco_perdeu:
+    loadn r0, #somDerrota
+    call Som
+Laco_telaFim:
     call TelaFim
     jmp main
 
@@ -397,6 +489,72 @@ Espera:
 Espera_loop:
     dec r0
     jnz Espera_loop
+    pop r0
+    rts
+
+; ----------------------------------------------------------------------------
+;  Som: r0 = melodia (trincas frequencia, duracao, onda; termina em 0)
+; ----------------------------------------------------------------------------
+Som:
+    push r0
+    push r1
+    push r2
+    push r3
+    push r4
+    loadn r4, #0
+Som_loop:
+    loadi r1, r0                ; frequencia
+    cmp r1, r4
+    jeq Som_fim
+    inc r0
+    loadi r2, r0                ; duracao
+    inc r0
+    loadi r3, r0                ; onda
+    inc r0
+    sound r1, r2, r3
+    jmp Som_loop
+Som_fim:
+    pop r4
+    pop r3
+    pop r2
+    pop r1
+    pop r0
+    rts
+
+; EsperaVoltas: r0 = voltas de Espera (16100 = 1 s)
+EsperaVoltas:
+    push r0
+EsperaVoltas_loop:
+    call Espera
+    dec r0
+    jnz EsperaVoltas_loop
+    pop r0
+    rts
+
+; PiscaVitoria: a populacao pisca em amarelo por ~2 s antes da tela final
+PiscaVitoria:
+    push r0
+    push r1
+    push r2
+    push r3
+    loadn r2, #4                ; 4 piscadas de 0,5 s
+PiscaVitoria_loop:
+    load r0, popul
+    loadn r1, #54
+    loadn r3, #3840             ; apagada (preto)
+    call ImprimeNum0
+    loadn r0, #4025             ; 0,25 s
+    call EsperaVoltas
+    load r0, popul
+    loadn r3, #2816             ; acesa (amarelo)
+    call ImprimeNum0
+    loadn r0, #4025
+    call EsperaVoltas
+    dec r2
+    jnz PiscaVitoria_loop
+    pop r3
+    pop r2
+    pop r1
     pop r0
     rts
 
@@ -499,6 +657,7 @@ NovoJogo_zera:
     store piscaVoltas, r3
     store acelerado, r3
     store centavos, r3
+    store apagaoAntes, r3
     loadn r0, #1
     store cursorAceso, r0
     loadn r0, #1
@@ -745,6 +904,8 @@ TrataTecla_ant:
     call DesenhaRoleta
     loadn r0, #131              ; seta da esquerda some por um instante
     call ApagaSeta
+    loadn r0, #somRoleta
+    call Som
     jmp TrataTecla_fim
 TrataTecla_prox:
     load r0, ferr               ; ferr = (ferr + 1) % 6
@@ -755,6 +916,8 @@ TrataTecla_prox:
     call DesenhaRoleta
     loadn r0, #144              ; seta da direita some por um instante
     call ApagaSeta
+    loadn r0, #somRoleta
+    call Som
     jmp TrataTecla_fim
 TrataTecla_aplica:
     call Aplica
@@ -881,7 +1044,7 @@ Aplica:
     ; construir: so em bloco vazio
     loadn r4, #0
     cmp r2, r4
-    jne Aplica_fim
+    jne Aplica_falha
     inc r3                      ; r3 = tipo novo (ferr + 1)
     loadn r4, #5
     cmp r3, r4
@@ -889,7 +1052,7 @@ Aplica:
     load r4, popul                ; usina grande pede 20 mil habitantes
     loadn r2, #2000
     cmp r4, r2
-    jle Aplica_fim
+    jle Aplica_falha
 Aplica_preco:
     loadn r4, #custo
     add r4, r4, r3
@@ -906,17 +1069,21 @@ Aplica_preco:
 Aplica_paga:
     load r2, dinheiro
     cmp r2, r4
-    jle Aplica_fim
+    jle Aplica_falha
     sub r2, r2, r4
     store dinheiro, r2
     mov r1, r3
     call PoeBloco
+    push r0
+    loadn r0, #somConstroi
+    call Som
+    pop r0
     jmp Aplica_redesenha
 
 Aplica_demolir:
     loadn r4, #0
     cmp r2, r4
-    jeq Aplica_fim
+    jeq Aplica_falha
     loadn r4, #custo            ; devolve metade do custo
     add r4, r4, r2
     loadi r1, r4
@@ -934,11 +1101,22 @@ Aplica_demolir:
     loadn r1, #nivel
     add r1, r1, r0
     storei r1, r4
+    push r0
+    loadn r0, #somDemole
+    call Som
+    pop r0
 
 Aplica_redesenha:
     call Recalcula
     call DesenhaBloco
     call DesenhaHud
+    jmp Aplica_fim
+
+Aplica_falha:                   ; nao deu para construir/demolir
+    push r0
+    loadn r0, #somErro
+    call Som
+    pop r0
 
 Aplica_fim:
     pop r4
@@ -1122,6 +1300,8 @@ Tick:
     push r7
 
     call Recalcula
+    loadn r0, #0
+    store subiu, r0
 
     ; r0 = sustentavel = min(totR, totC + totI / 10, totI)
     ; (a industria atrai um pouco de gente mesmo sem comercio: quem vem
@@ -1268,8 +1448,25 @@ Tick_cresceProx:
     cmp r6, r3
     jne Tick_cresce
     call Recalcula
+    load r0, subiu              ; algum bloco cresceu: som curto
+    loadn r1, #0
+    cmp r0, r1
+    jeq Tick_fimCidade
+    loadn r0, #somNivel
+    call Som
 
 Tick_fimCidade:
+    load r0, apagao             ; apagao comecou agora: som de alerta
+    load r1, apagaoAntes
+    store apagaoAntes, r0
+    loadn r2, #1
+    cmp r0, r2
+    jne Tick_dia
+    cmp r1, r2
+    jeq Tick_dia
+    loadn r0, #somApagao
+    call Som
+Tick_dia:
     load r0, dia                ; cada atualizacao e' um dia
     inc r0
     store dia, r0
@@ -1334,6 +1531,8 @@ SobeNivel_loop:
     push r0
     mov r0, r2
     call DesenhaBloco
+    loadn r0, #1
+    store subiu, r0
     pop r0
     dec r1
     jz SobeNivel_fim
@@ -1759,6 +1958,10 @@ EsperaEnter_apaga:
     pop r2
     jmp EsperaEnter_loop
 EsperaEnter_fim:
+    push r0
+    loadn r0, #somEnter
+    call Som
+    pop r0
     pop r6
     pop r5
     pop r4
@@ -1900,7 +2103,7 @@ TelaFim:
     jne TelaFim_prazo
 
     loadn r2, #2816             ; venceu: "100 MIL HABITANTES / EM ddd DIAS"
-    loadn r0, #402
+    loadn r0, #411
     loadn r1, #fim1
     call ImprimeStr
     loadn r2, #0

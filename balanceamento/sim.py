@@ -6,8 +6,8 @@ Uso: python3 sim.py
 P = dict(
     CAP=[0, 10, 50, 300],                       # dezenas de pessoas por nivel
     E={'R': [0, 1, 2, 5], 'C': [0, 1, 3, 6], 'I': [0, 2, 5, 10]},  # energia por nivel
-    custo={'R': 40, 'C': 60, 'I': 150},
-    usina=[(400, 40, 0), (2500, 300, 2000)],    # (custo, producao, populacao minima em dezenas)
+    custo={'R': 50, 'C': 100, 'I': 300},
+    usina=[(600, 40, 0), (2500, 300, 2000)],    # (custo, producao, populacao minima em dezenas)
     TAR=3,          # dinheiro por unidade de energia consumida por quem esta ocupado
     DIN0=500, META=10000, TICKS=120,
     ACOES=4,        # construcoes que o jogador faz por tick

@@ -111,6 +111,12 @@ O fundo de todo caractere é preto: não há como pôr duas cores no mesmo carac
 
 **Defeito do simulador: o caractere 4 nunca aparece.** Em `View.cpp` (`ViewerExpose`) o simulador pula o desenho quando `sym == 32`, para não desenhar o espaço; mas `sym` é o código vezes 8, então quem é pulado é o código 4, e o espaço é desenhado normalmente. Não use o código 4 no charmap (o `gera_arte.py` já o deixa de fora, e o `print_tela.py` imita o defeito). Achado em 18/10/2026: o canto inferior direito da grama aparecia preto.
 
+## Som
+
+- `SOUND rx, ry, rz`: toca a frequência `rx` (Hz) por `ry` ms com a onda `rz` (0 seno, 1 quadrada, 2 triângulo, 3 dente de serra). Implementado em `Simulator_Source/Sound.cpp` com SDL2.
+- O `play_note` do simulador espera a nota acabar antes de seguir: **o processador para durante o som**. Notas longas congelam o jogo.
+- O emulador Python ignora `SOUND` (não toca nada).
+
 ## Charmap
 
 - `charmap.mif`: 128 caracteres de 8×8, um bit por ponto, uma cor por caractere.

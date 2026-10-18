@@ -23,10 +23,10 @@ Cidade simplificada no estilo SimCity (SNES). O objetivo é chegar a 100 mil hab
 
 | Tipo | Papel | Custo |
 |---|---|---|
-| Residencial | casa: onde as pessoas moram | $40 |
-| Comércio | serviço: sem ele as pessoas vão embora | $60 |
-| Indústria | emprego: sem ele as pessoas vão embora | $150 |
-| Usina pequena | produz 40 de energia | $400 |
+| Residencial | casa: onde as pessoas moram | $50 |
+| Comércio | serviço: sem ele as pessoas vão embora | $100 |
+| Indústria | emprego: sem ele as pessoas vão embora | $300 |
+| Usina pequena | produz 40 de energia (a primeira é de graça) | $600 |
 | Usina grande | produz 300; liberada com 20 mil habitantes | $2500 |
 
 **População:** a cidade comporta `mín(casas, empregos, serviço + empregos / 10)`. A indústria atrai um pouco de gente mesmo sem comércio (quem vem atrás de emprego): 10% dos empregos contam como serviço. Com 1 casa e 1 indústria e nenhum comércio, chegam umas 10 pessoas. A cada atualização chega metade do que falta até esse limite; se a população está acima, sai um quarto do excesso. Construir casa não traz gente sozinho.
@@ -43,9 +43,11 @@ Cidade simplificada no estilo SimCity (SNES). O objetivo é chegar a 100 mil hab
 
 **Energia:** se o consumo passa da produção, há apagão: tudo funciona na proporção `produção / consumo`, ninguém sobe de nível e a receita cai.
 
-**Início:** $500, mapa vazio (só o terreno) e a primeira usina pequena de graça (o preço aparece $00000 até ela ser construída). Com isso sobra para casa, comércio e indústria ($250) e mais $250.
+**Início:** $500, mapa vazio (só o terreno) e a primeira usina pequena de graça (o preço aparece $00000 até ela ser construída). Dá para casa, comércio e indústria ($450) logo de cara.
 
-**Fim:** 100 mil habitantes é vitória ("100 MIL HABITANTES EM ddd DIAS"). Cada atualização (10 s) é um dia; no dia 999 sem a meta, o mandato acaba ("SEU MANDATO ACABOU", com a população alcançada). Enter recomeça. Com 1 dia a cada 10 s, o prazo dá ~2h45 de jogo: na prática só limita quem deixa o jogo parado.
+**Dificuldade (18/10/2026):** custos subiram de 40/60/150/400 para 50/100/300/600 (casa/comércio/indústria/usina pequena). Pela conta do `sim.py`: jogador rápido de ~9 para ~12 min; ninguém fica sem saída, o mais lento só demora mais (passa de 20 min).
+
+**Fim:** 100 mil habitantes é vitória: a população pisca em amarelo por ~2 s, toca a música de vitória e vem a tela "100 MIL HABITANTES / EM ddd DIAS". Cada atualização (10 s) é um dia; no dia 999 sem a meta, o mandato acaba ("SEU MANDATO ACABOU", com a população alcançada). Enter recomeça. Com 1 dia a cada 10 s, o prazo dá ~2h45 de jogo: na prática só limita quem deixa o jogo parado.
 
 ## Balanceamento
 
@@ -110,3 +112,20 @@ Textos e desenhos das telas ficam em tabelas lidas por `ImprimeTabela` (posiçã
 | 1 construção | 19,8 min | 20,3 min | 123 |
 
 A regra da indústria atrair gente (empregos / 10 como serviço) entrou em 18/10/2026 sem nova rodada de balanceamento.
+
+## Sons
+
+Instrução `SOUND frequência, duração (ms), onda` do simulador do professor (como o `teste_som.asm` dele); onda 0 seno, 1 quadrada, 2 triângulo, 3 dente de serra. Cada som é uma tabela de notas tocada pela rotina `Som`.
+
+| Quando | Som |
+|---|---|
+| Construir | duas notas subindo |
+| Demolir | duas notas descendo |
+| Não dá para construir/demolir | nota grave curta |
+| J ou K na roleta | clique curtinho |
+| Algum bloco subiu de nível na atualização | duas notas rápidas |
+| Começou um apagão | dois tons graves |
+| Enter nas telas | bipe |
+| Vitória / mandato acabou | melodia de 4 / 3 notas |
+
+**O simulador para enquanto o som toca** (tela e teclado congelam), então os sons do jogo têm 15 a 160 ms; só vitória e derrota são mais longos, quando o jogo já acabou.
