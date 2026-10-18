@@ -34,7 +34,7 @@ Cidade simplificada no estilo SimCity: chegar a 100 mil habitantes equilibrando 
 | `rodar.sh` | monta e abre no simulador gráfico |
 | `ferramentas/` | emulador em Python, print da tela, modo de jogar no terminal, partida automática |
 
-Jogar: `./rodar.sh` monta e abre no simulador do professor; na janela, Home liga a execução. Instalação em `FERRAMENTAS.md`.
+Jogar: `./rodar.sh` monta e abre no simulador do professor (cópia ampliada, escala 4; `./rodar.sh 3` para outra escala); na janela, Home liga a execução. Instalação em `FERRAMENTAS.md`.
 
 ## Ferramentas
 
