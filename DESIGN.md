@@ -67,10 +67,10 @@ Fica para depois: poluição.
 ## Tela e controles
 
 - Painel no topo (linhas 0 a 4), separador na linha 5, cidade em grid de blocos de 2×2 caracteres: 20×12 = 240 blocos nas linhas 6 a 29.
-- Bloco selecionado em rosa; bloco vazio selecionado vira `[]`.
+- Cursor: contorno branco que pisca com o bloco embaixo (troca a cada ~0,5 s; aparece na hora ao mover). Não dá para desenhar o contorno por cima do bloco: cada caractere tem uma cor só, sobre fundo preto.
 - WASD ou setas movem a seleção. J e K giram a roleta (casa, comércio, indústria, usina pequena, usina grande, demolir). Espaço aplica. `+` adianta uma atualização (para testar e apresentar).
 - Demolir devolve metade do custo.
-- Apagão: a energia é entregue aos blocos em ordem (de cima para baixo, da esquerda para a direita); quem passa da produção fica sem luz, em cinza, e não conta para casas, serviço, empregos nem receita.
+- Apagão: a energia é entregue aos blocos em ordem (de cima para baixo, da esquerda para a direita); quem passa da produção fica sem luz, em azul-escuro, e não conta para casas, serviço, empregos nem receita.
 
 **Painel:**
 - Linha 0: dinheiro e população.
@@ -79,14 +79,18 @@ Fica para depois: poluição.
 - Linha 3: roleta, com nome e preço.
 - Linha 4: barra de ritmo (10 partes = 1 atualização) e mensagens.
 
-**Desenhos provisórios** (letras do charmap padrão; a arte fica para a etapa de design):
+**Visual:** cada bloco é um quadrado de 15×15 pontos aceso na cor do tipo, com o desenho em preto, e uma linha preta de 1 ponto entre os blocos (o grid). Desenhos em `arte/blocos.txt`.
 
-| Bloco | Nível 1 | Nível 2 | Nível 3 |
-|---|---|---|---|
-| Casa (lima) | `R` num canto | `RR` em cima | `RR/RR` |
-| Comércio (aqua) | `C` | `CC` | `CC/CC` |
-| Indústria (amarelo) | `I` | `II` | `II/II` |
-| Usina pequena / grande (branco) | `Up/==` e `UG/##` | | |
+| Bloco | Cor | Níveis |
+|---|---|---|
+| Chão | aqua (verde menta claro) | |
+| Casa | amarelo | casinha, duas casas, prédio |
+| Comércio | rosa | loja, galeria, torre |
+| Indústria | cinza | fábrica pequena, média, grande |
+| Usina pequena / grande | vermelho | |
+| Sem luz | azul-escuro | |
+
+Marrom claro não existe na paleta: o "marrom" do simulador é vermelho escuro (165, 42, 42).
 
 ## Conferência com a simulação
 

@@ -8,6 +8,8 @@
 | Montar o jogo | `../material/bin/montador jogo.asm` (gera `jogo.mif`) |
 | Jogar no terminal (reserva, sem GTK) | `python3 ferramentas/jogar.py jogo.mif` (Esc sai) |
 | Ver a tela depois de N instruções | `python3 ferramentas/icmc.py jogo.mif --passos 800000 --teclas "100000:enter"` |
+| Print da tela como o simulador desenha | `python3 ferramentas/print_tela.py tela.png --passos 900000 --teclas "100000:enter"` |
+| Regerar o charmap depois de mudar `arte/blocos.txt` | `python3 arte/gera_arte.py` (reescreve `charmap.mif` e a tabela `glifo` no `jogo.asm`) |
 | Partida automática (teste) | `python3 ferramentas/joga_teste.py --acoes 4` |
 | Testar números da mecânica | `python3 balanceamento/sim.py` |
 
@@ -77,12 +79,36 @@ Escrito para testar sem janela. Segue `Simulator_Source/Model.cpp` instrução p
 
 Consequência: conta que estoura 16 bits pode funcionar no simulador e falhar na FPGA. O jogo evita estourar (soma saturada em 60000, população em dezenas).
 
-**Cores** (somar ao caractere): 0 branco, 256 marrom, 512 verde, 768 oliva, 1024 marinho, 1280 roxo, 1536 teal, 1792 prata, 2048 cinza, 2304 vermelho, 2560 lima, 2816 amarelo, 3072 azul, 3328 rosa, 3584 aqua, 3840 **preto** (a tabela do Hello4 diz "branco", mas o simulador define 15 como preto).
+**Cores** (somar ao caractere) e o RGB que o simulador pinta (`View.cpp`):
+
+| Valor | Nome | RGB | Observação |
+|---|---|---|---|
+| 0 | branco | 255, 255, 255 | |
+| 256 | marrom | 165, 42, 42 | na prática vermelho escuro; não há marrom claro |
+| 512 | verde | 0, 255, 0 | verde puro, forte |
+| 768 | oliva | 107, 142, 35 | verde grama escuro |
+| 1024 | marinho | 35, 35, 142 | |
+| 1280 | roxo | 135, 31, 120 | |
+| 1536 | teal | 0, 128, 128 | |
+| 1792 | prata | 230, 232, 250 | quase branco |
+| 2048 | cinza | 190, 190, 190 | cinza claro |
+| 2304 | vermelho | 255, 0, 0 | |
+| 2560 | lima | 50, 205, 50 | |
+| 2816 | amarelo | 255, 255, 0 | |
+| 3072 | azul | 0, 0, 255 | |
+| 3328 | rosa | 255, 28, 174 | |
+| 3584 | aqua | 122, 219, 147 | verde menta claro |
+| 3840 | preto | 0, 0, 0 | a tabela do Hello4 diz "branco", mas o simulador define 15 como preto |
+
+O fundo de todo caractere é preto: não há como pôr duas cores no mesmo caractere nem desenhar um por cima do outro.
 
 ## Charmap
 
 - `charmap.mif`: 128 caracteres de 8×8, um bit por ponto, uma cor por caractere.
 - O padrão traz 0 a 31 em branco: 32 desenhos livres sem perder letras.
+- O jogo usa 1 a 31 e as minúsculas (97 a 122) para os blocos; por isso todo texto do jogo é em maiúsculas. São 13 blocos × 4 = 52 de 57 caracteres livres.
+- Não editar `charmap.mif` à mão: mudar `arte/blocos.txt` e rodar `arte/gera_arte.py`. A base com as letras do professor fica em `arte/charmap_padrao.mif`.
+- O simulador exige cada linha do conteúdo começando com tabulação (o gerador já escreve assim).
 - O simulador procura o charmap passado na linha de comando; deixar na mesma pasta do `.asm`.
 
 ## Calibrar o ritmo (10 s por atualização)

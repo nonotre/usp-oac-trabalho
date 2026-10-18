@@ -57,6 +57,13 @@ ticks : var #1          ; atualizacoes feitas (cada uma vale 10 s de jogo)
 subtick : var #1        ; 0 a 9: posicao na barra de ritmo
 voltas : var #1         ; voltas do laco principal desde o ultimo subtick
 venceu : var #1
+cursorAceso : var #1    ; 1 = cursor mostrando o contorno
+piscaVoltas : var #1    ; voltas desde a ultima troca do cursor
+
+; Voltas do laco principal entre duas trocas do cursor (pisca). Metade de
+; voltasPorSub: com o ritmo calibrado, o cursor troca a cada ~0,5 s.
+voltasPisca : var #1
+static voltasPisca + #0, #1500
 
 ; Voltas do laco principal por subtick (10 subticks = 1 atualizacao = 10 s).
 ; Calibrar no simulador usado: ver FERRAMENTAS.md.
@@ -75,12 +82,12 @@ static custo + #4, #400
 static custo + #5, #2500
 
 corTipo : var #6
-static corTipo + #0, #512       ; vazio: verde
-static corTipo + #1, #2560      ; casa: lima
-static corTipo + #2, #3584      ; comercio: aqua
-static corTipo + #3, #2816      ; industria: amarelo
-static corTipo + #4, #0         ; usinas: branco
-static corTipo + #5, #0
+static corTipo + #0, #3584      ; chao: aqua (verde claro)
+static corTipo + #1, #2816      ; casa: amarelo
+static corTipo + #2, #3328      ; comercio: rosa
+static corTipo + #3, #2048      ; industria: cinza
+static corTipo + #4, #2304      ; usinas: vermelho
+static corTipo + #5, #2304
 
 capNivel : var #4       ; casas / servico / empregos por nivel, em dezenas
 static capNivel + #0, #0
@@ -100,45 +107,64 @@ static energia + #14, #5
 static energia + #15, #10
 
 ; Desenho de cada bloco: 4 caracteres (sup. esq., sup. dir., inf. esq.,
-; inf. dir.) em glifo + (tipo * 4 + nivel) * 4. Por enquanto sao letras;
-; a arte entra depois no charmap.mif.
+; inf. dir.) em glifo + (tipo * 4 + nivel) * 4. Os desenhos ficam em
+; arte/blocos.txt; arte/gera_arte.py gera o charmap.mif e a tabela abaixo.
+; >>> glifos (gerado por arte/gera_arte.py a partir de arte/blocos.txt)
 glifo : var #96
-static glifo + #0, #'.'         ; vazio
-static glifo + #20, #'R'        ; casa nivel 1
-static glifo + #24, #'R'        ; casa nivel 2
-static glifo + #25, #'R'
-static glifo + #28, #'R'        ; casa nivel 3
-static glifo + #29, #'R'
-static glifo + #30, #'R'
-static glifo + #31, #'R'
-static glifo + #36, #'C'        ; comercio
-static glifo + #40, #'C'
-static glifo + #41, #'C'
-static glifo + #44, #'C'
-static glifo + #45, #'C'
-static glifo + #46, #'C'
-static glifo + #47, #'C'
-static glifo + #52, #'I'        ; industria
-static glifo + #56, #'I'
-static glifo + #57, #'I'
-static glifo + #60, #'I'
-static glifo + #61, #'I'
-static glifo + #62, #'I'
-static glifo + #63, #'I'
-static glifo + #68, #'U'        ; usina pequena
-static glifo + #69, #'p'
-static glifo + #70, #'='
-static glifo + #71, #'='
-static glifo + #84, #'U'        ; usina grande
-static glifo + #85, #'G'
-static glifo + #86, #'#'
-static glifo + #87, #'#'
-
-glifoSel : var #4       ; bloco vazio selecionado
-static glifoSel + #0, #'['
-static glifoSel + #1, #']'
-static glifoSel + #2, #'['
-static glifoSel + #3, #']'
+static glifo + #0, #1          ; chao
+static glifo + #1, #2
+static glifo + #2, #3
+static glifo + #3, #4
+static glifo + #20, #9          ; casa1
+static glifo + #21, #10
+static glifo + #22, #11
+static glifo + #23, #12
+static glifo + #24, #13          ; casa2
+static glifo + #25, #14
+static glifo + #26, #15
+static glifo + #27, #16
+static glifo + #28, #17          ; casa3
+static glifo + #29, #18
+static glifo + #30, #19
+static glifo + #31, #20
+static glifo + #36, #21          ; comercio1
+static glifo + #37, #22
+static glifo + #38, #23
+static glifo + #39, #24
+static glifo + #40, #25          ; comercio2
+static glifo + #41, #26
+static glifo + #42, #27
+static glifo + #43, #28
+static glifo + #44, #29          ; comercio3
+static glifo + #45, #30
+static glifo + #46, #31
+static glifo + #47, #97
+static glifo + #52, #98          ; industria1
+static glifo + #53, #99
+static glifo + #54, #100
+static glifo + #55, #101
+static glifo + #56, #102          ; industria2
+static glifo + #57, #103
+static glifo + #58, #104
+static glifo + #59, #105
+static glifo + #60, #106          ; industria3
+static glifo + #61, #107
+static glifo + #62, #108
+static glifo + #63, #109
+static glifo + #68, #110          ; usina_pequena
+static glifo + #69, #111
+static glifo + #70, #112
+static glifo + #71, #113
+static glifo + #84, #114          ; usina_grande
+static glifo + #85, #115
+static glifo + #86, #116
+static glifo + #87, #117
+glifoSel : var #4
+static glifoSel + #0, #5          ; cursor
+static glifoSel + #1, #6
+static glifoSel + #2, #7
+static glifoSel + #3, #8
+; <<< glifos
 
 ; Nomes da roleta: 6 nomes de 12 letras + '\0' (13 posicoes cada)
 nomes : string "CASA        "
@@ -166,23 +192,23 @@ msgLibera   : string "PRECISA 20000 HAB.  "
 msgApagao   : string "APAGAO! FACA USINA  "
 
 ini1  : string "C I D A D E   I C M C"
-ini2  : string "Voce e o prefeito. Leve a cidade a"
-ini3  : string "100 MIL habitantes no menor tempo."
-ini4  : string "CASA       lugar para morar"
-ini5  : string "COMERCIO   sem ele o povo vai embora"
-ini6  : string "INDUSTRIA  sem emprego o povo sai"
-ini7  : string "USINA      energia, mas tem limite"
-ini8  : string "Quem mora e trabalha paga a luz:"
-ini9  : string "e dai que vem o dinheiro."
-ini10 : string "WASD ou setas  andar"
-ini11 : string "J / K          escolher a acao"
-ini12 : string "ESPACO         construir"
-ini13 : string "+              adiantar o tempo"
-ini14 : string "ENTER para comecar"
+ini2  : string "VOCE E O PREFEITO. LEVE A CIDADE A"
+ini3  : string "100 MIL HABITANTES NO MENOR TEMPO."
+ini4  : string "CASA       LUGAR PARA MORAR"
+ini5  : string "COMERCIO   SEM ELE O POVO VAI EMBORA"
+ini6  : string "INDUSTRIA  SEM EMPREGO O POVO SAI"
+ini7  : string "USINA      ENERGIA, MAS TEM LIMITE"
+ini8  : string "QUEM MORA E TRABALHA PAGA A LUZ:"
+ini9  : string "E DAI QUE VEM O DINHEIRO."
+ini10 : string "WASD OU SETAS  ANDAR"
+ini11 : string "J / K          ESCOLHER A ACAO"
+ini12 : string "ESPACO         CONSTRUIR"
+ini13 : string "+              ADIANTAR O TEMPO"
+ini14 : string "ENTER PARA COMECAR"
 
 fim1 : string "1 0 0   M I L   H A B I T A N T E S"
-fim2 : string "Tempo:   :"
-fim3 : string "ENTER para jogar de novo"
+fim2 : string "TEMPO:   :"
+fim3 : string "ENTER PARA JOGAR DE NOVO"
 
 ; ============================================================================
 ;  Programa principal
@@ -200,6 +226,7 @@ Laco:
     call TrataTecla
 Laco_semTecla:
     call Espera
+    call Pisca
     load r0, voltas
     inc r0
     store voltas, r0
@@ -226,6 +253,30 @@ Espera:
 Espera_loop:
     dec r0
     jnz Espera_loop
+    pop r0
+    rts
+
+; ----------------------------------------------------------------------------
+;  Pisca: a cada voltasPisca voltas troca o cursor entre contorno e bloco
+; ----------------------------------------------------------------------------
+Pisca:
+    push r0
+    push r1
+    load r0, piscaVoltas
+    inc r0
+    load r1, voltasPisca
+    cmp r0, r1
+    jne Pisca_fim
+    load r0, cursorAceso
+    loadn r1, #1
+    xor r0, r0, r1
+    store cursorAceso, r0
+    load r0, sel
+    call DesenhaBloco
+    loadn r0, #0
+Pisca_fim:
+    store piscaVoltas, r0
+    pop r1
     pop r0
     rts
 
@@ -284,6 +335,9 @@ NovoJogo_zera:
     store voltas, r3
     store venceu, r3
     store ferr, r3
+    store piscaVoltas, r3
+    loadn r0, #1
+    store cursorAceso, r0
     loadn r0, #500
     store dinheiro, r0
     loadn r0, #130              ; selecao logo abaixo da vila
@@ -416,14 +470,18 @@ DesenhaBloco:
     loadn r1, #glifo
     add r5, r5, r1
 
+    ; cursor: o bloco selecionado alterna entre o contorno branco e o
+    ; proprio bloco (cada caractere tem uma cor so, entao nao da para
+    ; desenhar o contorno por cima do bloco)
     load r1, sel
     cmp r0, r1
     jne DesenhaBloco_naoSel
-    loadn r6, #3328             ; selecionado: rosa
-    loadn r1, #0
-    cmp r3, r1
-    jne DesenhaBloco_desenha
-    loadn r5, #glifoSel         ; vazio selecionado vira [ ]
+    load r1, cursorAceso
+    loadn r6, #0
+    cmp r1, r6
+    jeq DesenhaBloco_naoSel
+    loadn r5, #glifoSel
+    loadn r6, #0                ; branco
     jmp DesenhaBloco_desenha
 
 DesenhaBloco_naoSel:
@@ -439,7 +497,7 @@ DesenhaBloco_naoSel:
     loadn r4, #0
     cmp r1, r4
     jne DesenhaBloco_desenha
-    loadn r6, #2048             ; sem luz: cinza
+    loadn r6, #1024             ; sem luz: azul marinho (apagado)
 
 DesenhaBloco_desenha:
     loadi r1, r5
@@ -634,10 +692,16 @@ MoveDir_fim:
 ; NovaSel: r0 = selecao antiga, r1 = selecao nova
 NovaSel:
     push r0
+    push r2
     store sel, r1
+    loadn r2, #1                ; cursor aparece na hora e recomeca a piscar
+    store cursorAceso, r2
+    loadn r2, #0
+    store piscaVoltas, r2
     call DesenhaBloco           ; antiga volta a cor normal
     mov r0, r1
-    call DesenhaBloco           ; nova em rosa
+    call DesenhaBloco           ; nova com o contorno
+    pop r2
     pop r0
     rts
 
@@ -1425,22 +1489,23 @@ TelaInicio:
     loadn r0, #323
     loadn r1, #ini3
     call ImprimeStr
-    loadn r2, #2560
+    loadn r2, #2816
     loadn r0, #403
     loadn r1, #ini4
     call ImprimeStr
-    loadn r2, #3584
+    loadn r2, #3328
     loadn r0, #443
     loadn r1, #ini5
     call ImprimeStr
-    loadn r2, #2816
+    loadn r2, #2048
     loadn r0, #483
     loadn r1, #ini6
     call ImprimeStr
-    loadn r2, #0
+    loadn r2, #2304
     loadn r0, #523
     loadn r1, #ini7
     call ImprimeStr
+    loadn r2, #0
     loadn r0, #603
     loadn r1, #ini8
     call ImprimeStr

@@ -26,12 +26,13 @@ Cidade simplificada no estilo SimCity: chegar a 100 mil habitantes equilibrando 
 | Arquivo | O quê |
 |---|---|
 | `jogo.asm` | o jogo |
-| `charmap.mif` | caracteres (por enquanto o padrão do professor) |
+| `charmap.mif` | caracteres: letras do professor e os blocos do jogo (gerado) |
+| `arte/` | desenhos dos blocos (`blocos.txt`) e o gerador do charmap |
 | `DESIGN.md` | regras, números e controles |
 | `FERRAMENTAS.md` | como montar, rodar e testar; comportamento do simulador |
 | `balanceamento/sim.py` | simulação da economia |
 | `rodar.sh` | monta e abre no simulador gráfico |
-| `ferramentas/` | emulador em Python, modo de jogar no terminal, partida automática |
+| `ferramentas/` | emulador em Python, print da tela, modo de jogar no terminal, partida automática |
 
 Jogar: `./rodar.sh` monta e abre no simulador do professor; na janela, Home liga a execução. Instalação em `FERRAMENTAS.md`.
 
