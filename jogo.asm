@@ -64,6 +64,7 @@ voltas : var #1         ; voltas do laco principal desde o ultimo subtick
 resultado : var #1      ; 0 jogando, 1 venceu, 2 acabou o prazo
 subiu : var #1          ; 1 se algum bloco subiu de nivel nesta atualizacao
 apagaoAntes : var #1    ; apagao da atualizacao anterior (som so quando comeca)
+qtd : var #6            ; quantos blocos de cada tipo existem (Recalcula)
 centavos : var #1       ; receita que ainda nao fechou $1 (dezesseis avos)
 usinaGratis : var #1    ; 1 = a proxima usina pequena nao custa nada
 acelerado : var #1      ; 1 = tempo 4 vezes mais rapido (tecla +)
@@ -92,13 +93,21 @@ static voltasPorSub + #0, #16100
 ; ----------------------------------------------------------------------------
 ;  Tabelas
 ; ----------------------------------------------------------------------------
-custo : var #6          ; por tipo
+custo : var #6          ; preco inicial por tipo (ver Preco)
 static custo + #0, #0
-static custo + #1, #50
-static custo + #2, #100
-static custo + #3, #300
-static custo + #4, #600
+static custo + #1, #40
+static custo + #2, #60
+static custo + #3, #150
+static custo + #4, #400
 static custo + #5, #2500
+
+aumento : var #6        ; o preco sobe isto a cada unidade do tipo no mapa
+static aumento + #0, #0
+static aumento + #1, #5
+static aumento + #2, #10
+static aumento + #3, #25
+static aumento + #4, #200
+static aumento + #5, #1000
 
 corTipo : var #6
 static corTipo + #0, #3584      ; chao (a cor real vem de corTerreno)
@@ -207,14 +216,6 @@ static iconeSeta_dir + #0, #119
 ;  O simulador PARA enquanto o som toca, entao so notas curtas no jogo.
 ;  Cada melodia: trincas (frequencia, duracao, onda) terminadas por 0.
 ; ----------------------------------------------------------------------------
-somConstroi : var #7
-static somConstroi + #0, #880
-static somConstroi + #1, #40
-static somConstroi + #2, #2
-static somConstroi + #3, #1320
-static somConstroi + #4, #60
-static somConstroi + #5, #2
-static somConstroi + #6, #0
 somDemole : var #7
 static somDemole + #0, #440
 static somDemole + #1, #40
@@ -228,11 +229,6 @@ static somErro + #0, #140
 static somErro + #1, #90
 static somErro + #2, #1
 static somErro + #3, #0
-somRoleta : var #4
-static somRoleta + #0, #1200
-static somRoleta + #1, #15
-static somRoleta + #2, #2
-static somRoleta + #3, #0
 somNivel : var #7
 static somNivel + #0, #660
 static somNivel + #1, #30
@@ -279,6 +275,122 @@ static somDerrota + #6, #262
 static somDerrota + #7, #450
 static somDerrota + #8, #2
 static somDerrota + #9, #0
+
+somMove : var #4
+static somMove + #0, #330
+static somMove + #1, #8
+static somMove + #2, #0
+static somMove + #3, #0
+somRoletaEsq : var #4
+static somRoletaEsq + #0, #900
+static somRoletaEsq + #1, #15
+static somRoletaEsq + #2, #2
+static somRoletaEsq + #3, #0
+somRoletaDir : var #4
+static somRoletaDir + #0, #1200
+static somRoletaDir + #1, #15
+static somRoletaDir + #2, #2
+static somRoletaDir + #3, #0
+somCasa : var #7
+static somCasa + #0, #784
+static somCasa + #1, #40
+static somCasa + #2, #2
+static somCasa + #3, #1047
+static somCasa + #4, #60
+static somCasa + #5, #2
+static somCasa + #6, #0
+somComercio : var #10
+static somComercio + #0, #659
+static somComercio + #1, #35
+static somComercio + #2, #1
+static somComercio + #3, #880
+static somComercio + #4, #35
+static somComercio + #5, #1
+static somComercio + #6, #1175
+static somComercio + #7, #45
+static somComercio + #8, #1
+static somComercio + #9, #0
+somIndustria : var #7
+static somIndustria + #0, #196
+static somIndustria + #1, #50
+static somIndustria + #2, #3
+static somIndustria + #3, #262
+static somIndustria + #4, #70
+static somIndustria + #5, #3
+static somIndustria + #6, #0
+somUsina : var #10
+static somUsina + #0, #110
+static somUsina + #1, #40
+static somUsina + #2, #1
+static somUsina + #3, #220
+static somUsina + #4, #40
+static somUsina + #5, #1
+static somUsina + #6, #440
+static somUsina + #7, #70
+static somUsina + #8, #1
+static somUsina + #9, #0
+somUsinaG : var #13
+static somUsinaG + #0, #110
+static somUsinaG + #1, #35
+static somUsinaG + #2, #1
+static somUsinaG + #3, #220
+static somUsinaG + #4, #35
+static somUsinaG + #5, #1
+static somUsinaG + #6, #440
+static somUsinaG + #7, #35
+static somUsinaG + #8, #1
+static somUsinaG + #9, #880
+static somUsinaG + #10, #70
+static somUsinaG + #11, #1
+static somUsinaG + #12, #0
+somSaiGente : var #7
+static somSaiGente + #0, #520
+static somSaiGente + #1, #40
+static somSaiGente + #2, #0
+static somSaiGente + #3, #390
+static somSaiGente + #4, #60
+static somSaiGente + #5, #0
+static somSaiGente + #6, #0
+somAceleraOn : var #10
+static somAceleraOn + #0, #440
+static somAceleraOn + #1, #30
+static somAceleraOn + #2, #2
+static somAceleraOn + #3, #660
+static somAceleraOn + #4, #30
+static somAceleraOn + #5, #2
+static somAceleraOn + #6, #880
+static somAceleraOn + #7, #40
+static somAceleraOn + #8, #2
+static somAceleraOn + #9, #0
+somAceleraOff : var #10
+static somAceleraOff + #0, #880
+static somAceleraOff + #1, #30
+static somAceleraOff + #2, #2
+static somAceleraOff + #3, #660
+static somAceleraOff + #4, #30
+static somAceleraOff + #5, #2
+static somAceleraOff + #6, #440
+static somAceleraOff + #7, #40
+static somAceleraOff + #8, #2
+static somAceleraOff + #9, #0
+somReset : var #10
+static somReset + #0, #1047
+static somReset + #1, #40
+static somReset + #2, #1
+static somReset + #3, #523
+static somReset + #4, #40
+static somReset + #5, #1
+static somReset + #6, #262
+static somReset + #7, #80
+static somReset + #8, #1
+static somReset + #9, #0
+somTipo : var #6        ; som de construir de cada tipo
+static somTipo + #0, #somErro
+static somTipo + #1, #somCasa
+static somTipo + #2, #somComercio
+static somTipo + #3, #somIndustria
+static somTipo + #4, #somUsina
+static somTipo + #5, #somUsinaG
 
 ; Nomes da roleta: 6 nomes de 12 letras + '\0' (13 posicoes cada)
 nomes : string "CASA        "
@@ -350,7 +462,9 @@ tutT3     : string "ESPACO"
 tutA3     : string "CONSTRUIR"
 tutT4     : string "+"
 tutA4     : string "ACELERA"
-tabTutorial : var #55
+tutT5     : string "R"
+tutA5     : string "REINICIA"
+tabTutorial : var #61
 static tabTutorial + #0, #96
 static tabTutorial + #1, #2816
 static tabTutorial + #2, #tutLeg
@@ -405,7 +519,13 @@ static tabTutorial + #50, #tutT4
 static tabTutorial + #51, #949
 static tabTutorial + #52, #0
 static tabTutorial + #53, #tutA4
-static tabTutorial + #54, #65535          ; fim da tabela
+static tabTutorial + #54, #964
+static tabTutorial + #55, #3584
+static tabTutorial + #56, #tutT5
+static tabTutorial + #57, #975
+static tabTutorial + #58, #0
+static tabTutorial + #59, #tutA5
+static tabTutorial + #60, #65535          ; fim da tabela
 glfTutorial : var #13
 static glfTutorial + #0, #204
 static glfTutorial + #1, #20
@@ -432,6 +552,8 @@ fim3 : string "APERTE ENTER PARA JOGAR DE NOVO"
 ;  Programa principal
 ; ============================================================================
 main:
+    loadn r0, #32764            ; pilha do zero (o R reinicia daqui)
+    mov sp, r0
     call TelaInicio
     call NovoJogo
     call DesenhaTudo
@@ -839,6 +961,7 @@ DesenhaBloco_desenha:
 TrataTecla:
     push r0
     push r1
+    push r2
 
     loadn r1, #16
     cmp r0, r1
@@ -880,7 +1003,15 @@ TrataTecla:
     loadn r1, #'+'
     cmp r0, r1
     jeq TrataTecla_tempo
+    loadn r1, #'r'
+    cmp r0, r1
+    jeq TrataTecla_reinicia
     jmp TrataTecla_fim
+
+TrataTecla_reinicia:            ; R: reinicio total, volta a tela de titulo
+    loadn r0, #somReset
+    call Som
+    jmp main
 
 TrataTecla_cima:
     call MoveCima
@@ -904,7 +1035,7 @@ TrataTecla_ant:
     call DesenhaRoleta
     loadn r0, #131              ; seta da esquerda some por um instante
     call ApagaSeta
-    loadn r0, #somRoleta
+    loadn r0, #somRoletaEsq
     call Som
     jmp TrataTecla_fim
 TrataTecla_prox:
@@ -916,7 +1047,7 @@ TrataTecla_prox:
     call DesenhaRoleta
     loadn r0, #144              ; seta da direita some por um instante
     call ApagaSeta
-    loadn r0, #somRoleta
+    loadn r0, #somRoletaDir
     call Som
     jmp TrataTecla_fim
 TrataTecla_aplica:
@@ -928,7 +1059,17 @@ TrataTecla_tempo:
     xor r0, r0, r1
     store acelerado, r0
     call DesenhaDia
+    loadn r1, #somAceleraOn     ; som de ligar ou de desligar
+    load r0, acelerado
+    loadn r2, #0
+    cmp r0, r2
+    jne TrataTecla_somTempo
+    loadn r1, #somAceleraOff
+TrataTecla_somTempo:
+    mov r0, r1
+    call Som
 TrataTecla_fim:
+    pop r2
     pop r1
     pop r0
     rts
@@ -1016,6 +1157,8 @@ NovaSel:
     call DesenhaBloco           ; antiga volta a cor normal
     mov r0, r1
     call DesenhaBloco           ; nova com o contorno
+    loadn r0, #somMove
+    call Som
     pop r2
     pop r0
     rts
@@ -1054,18 +1197,11 @@ Aplica:
     cmp r4, r2
     jle Aplica_falha
 Aplica_preco:
-    loadn r4, #custo
-    add r4, r4, r3
-    loadi r4, r4                ; r4 = custo
-    loadn r2, #4                ; primeira usina pequena: de graca
-    cmp r3, r2
-    jne Aplica_paga
-    load r2, usinaGratis
-    loadn r1, #0
-    cmp r2, r1
-    jeq Aplica_paga
-    loadn r4, #0
-    store usinaGratis, r1
+    push r0
+    mov r0, r3
+    call Preco
+    mov r4, r0                  ; r4 = preco atual
+    pop r0
 Aplica_paga:
     load r2, dinheiro
     cmp r2, r4
@@ -1074,8 +1210,16 @@ Aplica_paga:
     store dinheiro, r2
     mov r1, r3
     call PoeBloco
+    loadn r1, #4                ; usou a usina de graca
+    cmp r3, r1
+    jne Aplica_somTipo
+    loadn r1, #0
+    store usinaGratis, r1
+Aplica_somTipo:
     push r0
-    loadn r0, #somConstroi
+    loadn r0, #somTipo          ; som de construir, um por tipo
+    add r0, r0, r3
+    loadi r0, r0
     call Som
     pop r0
     jmp Aplica_redesenha
@@ -1155,14 +1299,31 @@ Recalcula:
     store candR, r0
     store candC, r0
     store candI, r0
+    loadn r2, #qtd
+    storei r2, r0
+    inc r2
+    storei r2, r0
+    inc r2
+    storei r2, r0
+    inc r2
+    storei r2, r0
+    inc r2
+    storei r2, r0
+    inc r2
+    storei r2, r0
 
-    ; 1a passada: energia produzida
+    ; 1a passada: energia produzida e quantos blocos de cada tipo
     loadn r1, #0
     loadn r7, #260
 Recalcula_prod:
     loadn r2, #tipo
     add r2, r2, r1
     loadi r3, r2
+    loadn r2, #qtd              ; qtd[tipo]++
+    add r2, r2, r3
+    loadi r4, r2
+    inc r4
+    storei r2, r4
     loadn r4, #40
     loadn r2, #4
     cmp r3, r2
@@ -1341,6 +1502,13 @@ Tick_sai:
     loadn r3, #4
     div r2, r2, r3
     sub r1, r1, r2
+    loadn r3, #0                ; saiu gente: som triste curto
+    cmp r2, r3
+    jeq Tick_popOk
+    push r0
+    loadn r0, #somSaiGente
+    call Som
+    pop r0
 Tick_popOk:
     store popul, r1
 
@@ -1623,6 +1791,38 @@ DesenhaDia_imprime:
     pop r0
     rts
 
+; Preco: r0 = tipo (0 a 5) -> r0 = preco atual = custo + aumento * quantos
+; desse tipo ja existem no mapa (demolir baixa o preco de novo). A primeira
+; usina pequena e' de graca.
+Preco:
+    push r1
+    push r2
+    loadn r1, #4
+    cmp r0, r1
+    jne Preco_conta
+    load r1, usinaGratis
+    loadn r2, #0
+    cmp r1, r2
+    jeq Preco_conta
+    loadn r0, #0
+    jmp Preco_fim
+Preco_conta:
+    loadn r1, #aumento
+    add r1, r1, r0
+    loadi r1, r1
+    loadn r2, #qtd
+    add r2, r2, r0
+    loadi r2, r2
+    mul r1, r1, r2              ; aumento * quantidade
+    loadn r2, #custo
+    add r2, r2, r0
+    loadi r0, r2
+    call SomaSat                ; + preco inicial
+Preco_fim:
+    pop r2
+    pop r1
+    rts
+
 ; DesenhaRoleta: nome e preco da acao escolhida (linha 3). O preco fica
 ; vermelho quando nao da para construir (falta dinheiro ou a usina grande
 ; ainda esta travada).
@@ -1648,17 +1848,10 @@ DesenhaRoleta:
     jne DesenhaRoleta_preco
     loadn r0, #0
 DesenhaRoleta_preco:
-    loadn r1, #custo
-    add r1, r1, r0
-    loadi r4, r1                ; r4 = preco
-    loadn r1, #4                ; primeira usina pequena: de graca
-    cmp r0, r1
-    jne DesenhaRoleta_cor
-    load r1, usinaGratis
-    loadn r3, #0
-    cmp r1, r3
-    jeq DesenhaRoleta_cor
-    loadn r4, #0
+    push r0
+    call Preco
+    mov r4, r0                  ; r4 = preco atual
+    pop r0
 DesenhaRoleta_cor:
     loadn r3, #0                ; cor: branco, ou vermelho se nao da
     load r1, dinheiro

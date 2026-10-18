@@ -6,8 +6,9 @@ Uso: python3 sim.py
 P = dict(
     CAP=[0, 10, 50, 300],                       # dezenas de pessoas por nivel
     E={'R': [0, 1, 2, 5], 'C': [0, 1, 3, 6], 'I': [0, 2, 5, 10]},  # energia por nivel
-    custo={'R': 50, 'C': 100, 'I': 300},
-    usina=[(600, 40, 0), (2500, 300, 2000)],    # (custo, producao, populacao minima em dezenas)
+    custo={'R': 40, 'C': 60, 'I': 150},            # preco inicial
+    aumento={'R': 5, 'C': 10, 'I': 25, 'U': [200, 1000]},   # + a cada unidade no mapa
+    usina=[(400, 40, 0), (2500, 300, 2000)],    # (custo, producao, populacao minima em dezenas)
     TAR=3,          # dinheiro por unidade de energia consumida por quem esta ocupado
     DIN0=500, META=10000, TICKS=120,
     ACOES=4,        # construcoes que o jogador faz por tick
@@ -59,7 +60,7 @@ def jogador(s, P):
             if grande and s['din'] < P['usina'][1][0]:
                 return
             k = 1 if grande else 0
-            preco = 0 if k == 0 and s['gratis'] else P['usina'][k][0]   # 1a usina de graca
+            preco = 0 if k == 0 and s['gratis'] else P['usina'][k][0] + P['aumento']['U'][k] * s['U'][k]
             if s['din'] < preco:
                 return
             s['din'] -= preco
@@ -69,9 +70,10 @@ def jogador(s, P):
             continue
         tot = {t: sum(P['CAP'][max(l, 1)] for l in s[t]) for t in 'RCI'}
         t = min('RCI', key=lambda t: tot[t])
-        if s['din'] < P['custo'][t]:
+        preco = P['custo'][t] + P['aumento'][t] * len(s[t])
+        if s['din'] < preco:
             return
-        s['din'] -= P['custo'][t]
+        s['din'] -= preco
         s[t].append(1)
 
 

@@ -19,15 +19,15 @@ Cidade simplificada no estilo SimCity (SNES). O objetivo é chegar a 100 mil hab
 
 **Ritmo:** uma atualização a cada 10 s, sem dia nem mês.
 
-**Construções:**
+**Construções:** o preço é progressivo: começa no valor inicial e sobe a cada unidade daquele tipo que já existe no mapa (demolir baixa de novo).
 
-| Tipo | Papel | Custo |
-|---|---|---|
-| Residencial | casa: onde as pessoas moram | $50 |
-| Comércio | serviço: sem ele as pessoas vão embora | $100 |
-| Indústria | emprego: sem ele as pessoas vão embora | $300 |
-| Usina pequena | produz 40 de energia (a primeira é de graça) | $600 |
-| Usina grande | produz 300; liberada com 20 mil habitantes | $2500 |
+| Tipo | Papel | Preço inicial | + por unidade no mapa |
+|---|---|---|---|
+| Residencial | casa: onde as pessoas moram | $40 | $5 |
+| Comércio | serviço: sem ele as pessoas vão embora | $60 | $10 |
+| Indústria | emprego: sem ele as pessoas vão embora | $150 | $25 |
+| Usina pequena | produz 40 de energia (a primeira é de graça) | $400 | $200 |
+| Usina grande | produz 300; liberada com 20 mil habitantes | $2500 | $1000 |
 
 **População:** a cidade comporta `mín(casas, empregos, serviço + empregos / 10)`. A indústria atrai um pouco de gente mesmo sem comércio (quem vem atrás de emprego): 10% dos empregos contam como serviço. Com 1 casa e 1 indústria e nenhum comércio, chegam umas 10 pessoas. A cada atualização chega metade do que falta até esse limite; se a população está acima, sai um quarto do excesso. Construir casa não traz gente sozinho.
 
@@ -43,9 +43,9 @@ Cidade simplificada no estilo SimCity (SNES). O objetivo é chegar a 100 mil hab
 
 **Energia:** se o consumo passa da produção, há apagão: tudo funciona na proporção `produção / consumo`, ninguém sobe de nível e a receita cai.
 
-**Início:** $500, mapa vazio (só o terreno) e a primeira usina pequena de graça (o preço aparece $00000 até ela ser construída). Dá para casa, comércio e indústria ($450) logo de cara.
+**Início:** $500, mapa vazio (só o terreno) e a primeira usina pequena de graça (o preço aparece $00000 até ela ser construída). Dá para casa, comércio e indústria ($250) logo de cara.
 
-**Dificuldade (18/10/2026):** custos subiram de 40/60/150/400 para 50/100/300/600 (casa/comércio/indústria/usina pequena). Pela conta do `sim.py`: jogador rápido de ~9 para ~12 min; ninguém fica sem saída, o mais lento só demora mais (passa de 20 min).
+**Dificuldade (18/10/2026):** primeiro os custos fixos subiram (50/100/300/600); depois viraram o preço progressivo acima. Pela conta do `sim.py`, o jogador rápido vence por volta do dia 78; o mais lento, por volta do dia 128. Ninguém fica sem saída.
 
 **Fim:** 100 mil habitantes é vitória: a população pisca em amarelo por ~2 s, toca a música de vitória e vem a tela "100 MIL HABITANTES / EM ddd DIAS". Cada atualização (10 s) é um dia; no dia 999 sem a meta, o mandato acaba ("SEU MANDATO ACABOU", com a população alcançada). Enter recomeça. Com 1 dia a cada 10 s, o prazo dá ~2h45 de jogo: na prática só limita quem deixa o jogo parado.
 
@@ -70,7 +70,7 @@ Fica para depois: poluição.
 
 - Painel no topo: linha 0 em branco (borda), linha 1 com os números, linha 2 em branco, linha 3 com a roleta. Cidade em grid de blocos de 2×2 caracteres: 20×13 = 260 blocos nas linhas 4 a 29. Não existe meia linha: a tela é uma grade de caracteres de 8 pontos de altura.
 - Cursor: pisca a cada ~0,5 s (aparece na hora ao mover). Cada caractere tem uma cor só, sobre preto, então um contorno branco por cima com o miolo visível não existe. No chão, o cursor recorta uma borda preta de 2 pontos e o miolo fica na cor do terreno; no prédio, o desenho acende em branco (recortar a borda em cada prédio custaria 44 caracteres; só sobram 15).
-- WASD ou setas movem a seleção. J e K giram a roleta (casa, comércio, indústria, usina pequena, usina grande, demolir); as teclas não aparecem escritas no painel, só na tela inicial. Espaço aplica. `+` liga e desliga o tempo acelerado (4×: um dia a cada 2,5 s); enquanto acelerado, o número do dia fica amarelo.
+- WASD ou setas movem a seleção. J e K giram a roleta (casa, comércio, indústria, usina pequena, usina grande, demolir); as teclas não aparecem escritas no painel, só na tela inicial. Espaço aplica. R reinicia tudo (volta à tela de título, com som). `+` liga e desliga o tempo acelerado (4×: um dia a cada 2,5 s); enquanto acelerado, o número do dia fica amarelo.
 - Demolir devolve metade do custo.
 - Apagão: a energia é entregue aos blocos em ordem (de cima para baixo, da esquerda para a direita); quem passa da produção fica sem luz, em azul-escuro, e não conta para casas, serviço, empregos nem receita.
 
@@ -119,12 +119,19 @@ Instrução `SOUND frequência, duração (ms), onda` do simulador do professor 
 
 | Quando | Som |
 |---|---|
-| Construir | duas notas subindo |
-| Demolir | duas notas descendo |
+| Mover o cursor | toque grave curtíssimo (8 ms) |
+| J / K na roleta | clique mais grave / mais agudo |
+| Construir casa | duas notas subindo (triângulo) |
+| Construir comércio | três notas subindo (quadrada) |
+| Construir indústria | duas notas graves (dente de serra) |
+| Construir usina pequena / grande | "liga" de 3 / 4 notas (quadrada) |
+| Demolir | três notas descendo |
 | Não dá para construir/demolir | nota grave curta |
-| J ou K na roleta | clique curtinho |
-| Algum bloco subiu de nível na atualização | duas notas rápidas |
+| Algum bloco subiu de nível | duas notas rápidas |
+| Gente indo embora | duas notas suaves descendo (seno) |
 | Começou um apagão | dois tons graves |
+| `+` liga / desliga o acelerado | três notas subindo / descendo |
+| R (reiniciar) | três notas descendo |
 | Enter nas telas | bipe |
 | Vitória / mandato acabou | melodia de 4 / 3 notas |
 
