@@ -471,7 +471,7 @@ Subtick_fim:
     rts
 
 ; ----------------------------------------------------------------------------
-;  NovoJogo: zera o mapa, poe a vila inicial e os valores de partida
+;  NovoJogo: zera o mapa, sorteia o terreno e poe os valores de partida
 ; ----------------------------------------------------------------------------
 NovoJogo:
     push r0
