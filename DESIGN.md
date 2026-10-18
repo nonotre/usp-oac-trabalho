@@ -43,9 +43,9 @@ Cidade simplificada no estilo SimCity (SNES). O objetivo é chegar a 100 mil hab
 
 **Energia:** se o consumo passa da produção, há apagão: tudo funciona na proporção `produção / consumo`, ninguém sobe de nível e a receita cai.
 
-**Início:** $500 e uma vila pronta (1 casa, 1 comércio, 1 indústria, 1 usina pequena). Sem a vila a cidade não arranca: ninguém fica sem os três tipos, e o dinheiro não paga os três mais a usina.
+**Início:** $500, mapa vazio (só o terreno) e a primeira usina pequena de graça (o preço aparece $00000 até ela ser construída). Com isso sobra para casa, comércio e indústria ($250) e mais $250.
 
-**Fim:** 100 mil habitantes é vitória ("100 MIL HABITANTES EM ddd DIAS"). Cada atualização (10 s) é um dia; no dia 999 sem a meta, o prazo acaba ("O PRAZO ACABOU", com a população alcançada). Enter recomeça. Com 1 dia a cada 10 s, o prazo dá ~2h45 de jogo: na prática só limita quem deixa o jogo parado.
+**Fim:** 100 mil habitantes é vitória ("100 MIL HABITANTES EM ddd DIAS"). Cada atualização (10 s) é um dia; no dia 999 sem a meta, o mandato acaba ("SEU MANDATO ACABOU", com a população alcançada). Enter recomeça. Com 1 dia a cada 10 s, o prazo dá ~2h45 de jogo: na prática só limita quem deixa o jogo parado.
 
 ## Balanceamento
 
@@ -93,7 +93,11 @@ Fica para depois: poluição.
 
 Marrom claro não existe na paleta: o "marrom" do simulador é vermelho escuro (165, 42, 42).
 
-**Tela inicial:** título, objetivo numa linha (com a pessoinha), legenda com o desenho de cada construção ao lado do nome (na cor dela) e de uma frase curta, a regra do dinheiro ("quem mora e trabalha paga a luz"), os controles em duas linhas (tecla em verde, ação em branco) e "APERTE ENTER" piscando. A tela final também pisca o "APERTE ENTER". Os textos ficam numa tabela (posição, cor, texto) lida por `ImprimeTabela`.
+**Telas iniciais (duas):**
+1. Título: "CIDADE ICMC", uma fileira de prédios desenhados e a história ("CONQUISTE CEM MIL PESSOAS / ANTES QUE SEU MANDATO ACABE"). Pisca "APERTE ENTER PARA TUTORIAL".
+2. Tutorial: mini-título LEGENDA (desenho de cada construção, nome na cor dela, frase curta; a regra do dinheiro; "a primeira usina é de graça") e mini-título CONTROLES (tecla em verde, ação em branco). Pisca "APERTE ENTER PARA JOGAR".
+
+Textos e desenhos das telas ficam em tabelas lidas por `ImprimeTabela` (posição, cor, texto) e `DesenhaTabGlifos` (posição, desenho, cor). A tela final também pisca o "APERTE ENTER"
 
 ## Conferência com a simulação
 
@@ -101,6 +105,6 @@ Marrom claro não existe na paleta: o "marrom" do simulador é vermelho escuro (
 
 | Jogador | `sim.py` | `jogo.asm` | Dia da vitória |
 |---|---|---|---|
-| 4 construções a cada 10 s | 9,0 min | 9,2 min | 56 |
-| 2 construções | 12,2 min | 12,3 min | ~75 |
-| 1 construção | 18,5 min | 18,7 min | ~113 |
+| 4 construções a cada 10 s | 9,2 min | 9,7 min | 59 |
+| 2 construções | 12,7 min | 12,8 min | 78 |
+| 1 construção | 19,8 min | 20,3 min | 123 |

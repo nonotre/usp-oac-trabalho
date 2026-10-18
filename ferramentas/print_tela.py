@@ -3,7 +3,7 @@
 Usa o charmap.mif e as cores RGB do Simulator_Source/View.cpp do professor
 (cada ponto do caractere vira 2x2 pixels, fundo preto).
 
-Uso: python3 print_tela.py saida.png [--passos N] [--teclas "100000:enter,..."]
+Uso: python3 print_tela.py saida.png [--passos N] [--teclas "100000:enter,400000:enter"]
 """
 import argparse
 import os
@@ -49,8 +49,8 @@ if __name__ == '__main__':
     ap.add_argument('saida')
     ap.add_argument('--mif', default=os.path.join(AQUI, '..', 'jogo.mif'))
     ap.add_argument('--charmap', default=os.path.join(AQUI, '..', 'charmap.mif'))
-    ap.add_argument('--passos', type=int, default=900000)
-    ap.add_argument('--teclas', default='100000:enter')
+    ap.add_argument('--passos', type=int, default=1200000)
+    ap.add_argument('--teclas', default='100000:enter,400000:enter')
     a = ap.parse_args()
     cpu = CPU(le_mif(a.mif))
     cpu.roda(a.passos, le_teclas(a.teclas))

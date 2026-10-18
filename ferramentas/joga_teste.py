@@ -41,11 +41,20 @@ class Jogador:
         self.v = enderecos(ASM)
         self.acoes = acoes
         self.cpu.roda(100000)
-        self.tecla('\r')
+        self.enter()                             # tela do titulo -> tutorial
+        self.cpu.roda(self.cpu.passos + 200000)
+        self.enter()                             # tutorial -> jogo
         self.cpu.roda(self.cpu.passos + 300000)   # NovoJogo e desenho da tela
 
     def m(self, nome, i=0):
         return self.cpu.mem[self.v[nome] + i]
+
+    def enter(self):
+        """Aperta Enter numa tela de espera (sem esperar o laco principal)."""
+        c = self.cpu
+        c.key = 13
+        while c.key != 255:
+            c.passo()
 
     def tecla(self, k):
         c = self.cpu

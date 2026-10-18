@@ -62,6 +62,7 @@ dia : var #1            ; dia do jogo (1 por atualizacao, 10 s); prazo: dia 999
 subtick : var #1        ; 0 a 9: posicao na barra de ritmo
 voltas : var #1         ; voltas do laco principal desde o ultimo subtick
 resultado : var #1      ; 0 jogando, 1 venceu, 2 acabou o prazo
+usinaGratis : var #1    ; 1 = a proxima usina pequena nao custa nada
 acelerado : var #1      ; 1 = tempo 4 vezes mais rapido (tecla +)
 setaVoltas : var #1     ; voltas que faltam para a seta da roleta reaparecer
 cursorAceso : var #1    ; 1 = cursor mostrando o contorno
@@ -211,90 +212,145 @@ nomes : string "CASA        "
 txtHudA   : string "$                         /      DIA    "
 txtHudB   : string "CONSTRUIR:                VALOR: $      "
 
-; Tela inicial: textos e a tabela (posicao, cor, texto) que ImprimeTabela le
-iniTitulo : string "C I D A D E   I C M C"
-iniObj    : string "LEVE A CIDADE A   100000 ATE O DIA 999"
-iniCasa   : string "CASA"
-iniCasaD  : string "ONDE O POVO MORA"
-iniCom    : string "COMERCIO"
-iniComD   : string "SEM ELE O POVO VAI EMBORA"
-iniInd    : string "INDUSTRIA"
-iniIndD   : string "SEM EMPREGO O POVO SAI"
-iniUsi    : string "USINA"
-iniUsiD   : string "DA ENERGIA, MAS TEM LIMITE"
-iniLuz    : string "QUEM MORA E TRABALHA PAGA A LUZ"
-iniT1     : string "WASD/SETAS"
-iniA1     : string "ANDAR"
-iniT2     : string "J/K"
-iniA2     : string "ESCOLHER"
-iniT3     : string "ESPACO"
-iniA3     : string "CONSTRUIR"
-iniT4     : string "+"
-iniA4     : string "ACELERA"
-iniEnter  : string "APERTE ENTER"
-tabInicio : var #58
-static tabInicio + #0, #129
-static tabInicio + #1, #2816
-static tabInicio + #2, #iniTitulo
-static tabInicio + #3, #241
-static tabInicio + #4, #0
-static tabInicio + #5, #iniObj
-static tabInicio + #6, #368
-static tabInicio + #7, #2816
-static tabInicio + #8, #iniCasa
-static tabInicio + #9, #408
-static tabInicio + #10, #0
-static tabInicio + #11, #iniCasaD
-static tabInicio + #12, #488
-static tabInicio + #13, #3328
-static tabInicio + #14, #iniCom
-static tabInicio + #15, #528
-static tabInicio + #16, #0
-static tabInicio + #17, #iniComD
-static tabInicio + #18, #608
-static tabInicio + #19, #2048
-static tabInicio + #20, #iniInd
-static tabInicio + #21, #648
-static tabInicio + #22, #0
-static tabInicio + #23, #iniIndD
-static tabInicio + #24, #728
-static tabInicio + #25, #2304
-static tabInicio + #26, #iniUsi
-static tabInicio + #27, #768
-static tabInicio + #28, #0
-static tabInicio + #29, #iniUsiD
-static tabInicio + #30, #844
-static tabInicio + #31, #2816
-static tabInicio + #32, #iniLuz
-static tabInicio + #33, #964
-static tabInicio + #34, #3584
-static tabInicio + #35, #iniT1
-static tabInicio + #36, #975
-static tabInicio + #37, #0
-static tabInicio + #38, #iniA1
-static tabInicio + #39, #985
-static tabInicio + #40, #3584
-static tabInicio + #41, #iniT2
-static tabInicio + #42, #989
-static tabInicio + #43, #0
-static tabInicio + #44, #iniA2
-static tabInicio + #45, #1004
-static tabInicio + #46, #3584
-static tabInicio + #47, #iniT3
-static tabInicio + #48, #1015
-static tabInicio + #49, #0
-static tabInicio + #50, #iniA3
-static tabInicio + #51, #1025
-static tabInicio + #52, #3584
-static tabInicio + #53, #iniT4
-static tabInicio + #54, #1029
-static tabInicio + #55, #0
-static tabInicio + #56, #iniA4
-static tabInicio + #57, #65535          ; fim da tabela
+; Telas iniciais: textos em tabelas (posicao, cor, texto) lidas por
+; ImprimeTabela, e desenhos em tabelas (posicao, deslocamento no glifo, cor)
+; lidas por DesenhaTabGlifos. Telas: titulo (com a historia) e tutorial.
+titNome   : string "C I D A D E   I C M C"
+titHist1  : string "CONQUISTE CEM MIL PESSOAS"
+titHist2  : string "ANTES QUE SEU MANDATO ACABE"
+tabTitulo : var #10
+static tabTitulo + #0, #249
+static tabTitulo + #1, #2816
+static tabTitulo + #2, #titNome
+static tabTitulo + #3, #567
+static tabTitulo + #4, #0
+static tabTitulo + #5, #titHist1
+static tabTitulo + #6, #646
+static tabTitulo + #7, #0
+static tabTitulo + #8, #titHist2
+static tabTitulo + #9, #65535          ; fim da tabela
+glfTitulo : var #19
+static glfTitulo + #0, #371
+static glfTitulo + #1, #28
+static glfTitulo + #2, #2816
+static glfTitulo + #3, #374
+static glfTitulo + #4, #44
+static glfTitulo + #5, #3328
+static glfTitulo + #6, #377
+static glfTitulo + #7, #60
+static glfTitulo + #8, #2048
+static glfTitulo + #9, #380
+static glfTitulo + #10, #84
+static glfTitulo + #11, #2304
+static glfTitulo + #12, #383
+static glfTitulo + #13, #40
+static glfTitulo + #14, #3328
+static glfTitulo + #15, #386
+static glfTitulo + #16, #24
+static glfTitulo + #17, #2816
+static glfTitulo + #18, #65535          ; fim da tabela
+titEnter  : string "APERTE ENTER PARA TUTORIAL"
+tutLeg    : string "LEGENDA"
+tutCasa   : string "CASA"
+tutCasaD  : string "ONDE O POVO MORA"
+tutCom    : string "COMERCIO"
+tutComD   : string "SEM ELE O POVO VAI EMBORA"
+tutInd    : string "INDUSTRIA"
+tutIndD   : string "SEM EMPREGO O POVO SAI"
+tutUsi    : string "USINA"
+tutUsiD   : string "DA ENERGIA, MAS TEM LIMITE"
+tutLuz    : string "QUEM MORA E TRABALHA PAGA A LUZ"
+tutGratis : string "A PRIMEIRA USINA E DE GRACA"
+tutCtl    : string "CONTROLES"
+tutT1     : string "WASD/SETAS"
+tutA1     : string "ANDAR"
+tutT2     : string "J/K"
+tutA2     : string "ESCOLHER"
+tutT3     : string "ESPACO"
+tutA3     : string "CONSTRUIR"
+tutT4     : string "+"
+tutA4     : string "ACELERA"
+tabTutorial : var #61
+static tabTutorial + #0, #96
+static tabTutorial + #1, #2816
+static tabTutorial + #2, #tutLeg
+static tabTutorial + #3, #208
+static tabTutorial + #4, #2816
+static tabTutorial + #5, #tutCasa
+static tabTutorial + #6, #248
+static tabTutorial + #7, #0
+static tabTutorial + #8, #tutCasaD
+static tabTutorial + #9, #328
+static tabTutorial + #10, #3328
+static tabTutorial + #11, #tutCom
+static tabTutorial + #12, #368
+static tabTutorial + #13, #0
+static tabTutorial + #14, #tutComD
+static tabTutorial + #15, #448
+static tabTutorial + #16, #2048
+static tabTutorial + #17, #tutInd
+static tabTutorial + #18, #488
+static tabTutorial + #19, #0
+static tabTutorial + #20, #tutIndD
+static tabTutorial + #21, #568
+static tabTutorial + #22, #2304
+static tabTutorial + #23, #tutUsi
+static tabTutorial + #24, #608
+static tabTutorial + #25, #0
+static tabTutorial + #26, #tutUsiD
+static tabTutorial + #27, #684
+static tabTutorial + #28, #0
+static tabTutorial + #29, #tutLuz
+static tabTutorial + #30, #724
+static tabTutorial + #31, #0
+static tabTutorial + #32, #tutGratis
+static tabTutorial + #33, #815
+static tabTutorial + #34, #2816
+static tabTutorial + #35, #tutCtl
+static tabTutorial + #36, #884
+static tabTutorial + #37, #3584
+static tabTutorial + #38, #tutT1
+static tabTutorial + #39, #895
+static tabTutorial + #40, #0
+static tabTutorial + #41, #tutA1
+static tabTutorial + #42, #905
+static tabTutorial + #43, #3584
+static tabTutorial + #44, #tutT2
+static tabTutorial + #45, #909
+static tabTutorial + #46, #0
+static tabTutorial + #47, #tutA2
+static tabTutorial + #48, #924
+static tabTutorial + #49, #3584
+static tabTutorial + #50, #tutT3
+static tabTutorial + #51, #935
+static tabTutorial + #52, #0
+static tabTutorial + #53, #tutA3
+static tabTutorial + #54, #945
+static tabTutorial + #55, #3584
+static tabTutorial + #56, #tutT4
+static tabTutorial + #57, #949
+static tabTutorial + #58, #0
+static tabTutorial + #59, #tutA4
+static tabTutorial + #60, #65535          ; fim da tabela
+glfTutorial : var #13
+static glfTutorial + #0, #204
+static glfTutorial + #1, #20
+static glfTutorial + #2, #2816
+static glfTutorial + #3, #324
+static glfTutorial + #4, #36
+static glfTutorial + #5, #3328
+static glfTutorial + #6, #444
+static glfTutorial + #7, #52
+static glfTutorial + #8, #2048
+static glfTutorial + #9, #564
+static glfTutorial + #10, #68
+static glfTutorial + #11, #2304
+static glfTutorial + #12, #65535          ; fim da tabela
+tutEnter  : string "APERTE ENTER PARA JOGAR"
 
 fim1 : string "1 0 0   M I L   H A B I T A N T E S"
 fim2 : string "EM     DIAS"
-fimP1 : string "O PRAZO ACABOU"
+fimP1 : string "SEU MANDATO ACABOU"
 fimP2 : string "DIA 999 COM        HABITANTES"
 fim3 : string "APERTE ENTER PARA JOGAR DE NOVO"
 
@@ -455,25 +511,12 @@ NovoJogo_zera:
     store dia, r0
     loadn r0, #500
     store dinheiro, r0
-    loadn r0, #148              ; selecao logo abaixo da vila
+    loadn r0, #129              ; selecao no meio do mapa
     store sel, r0
 
     call GeraTerreno
-
-    ; vila inicial na linha 6 do grid (a do meio): usina, casa, comercio, industria
-    loadn r3, #1
-    loadn r0, #126
-    loadn r1, #4
-    call PoeBloco
-    loadn r0, #127
-    loadn r1, #1
-    call PoeBloco
-    loadn r0, #128
-    loadn r1, #2
-    call PoeBloco
-    loadn r0, #129
-    loadn r1, #3
-    call PoeBloco
+    loadn r0, #1                ; a primeira usina sai de graca
+    store usinaGratis, r0
 
     pop r3
     pop r2
@@ -857,6 +900,16 @@ Aplica_preco:
     loadn r4, #custo
     add r4, r4, r3
     loadi r4, r4                ; r4 = custo
+    loadn r2, #4                ; primeira usina pequena: de graca
+    cmp r3, r2
+    jne Aplica_paga
+    load r2, usinaGratis
+    loadn r1, #0
+    cmp r2, r1
+    jeq Aplica_paga
+    loadn r4, #0
+    store usinaGratis, r1
+Aplica_paga:
     load r2, dinheiro
     cmp r2, r4
     jle Aplica_fim
@@ -1388,6 +1441,15 @@ DesenhaRoleta_preco:
     loadn r1, #custo
     add r1, r1, r0
     loadi r4, r1                ; r4 = preco
+    loadn r1, #4                ; primeira usina pequena: de graca
+    cmp r0, r1
+    jne DesenhaRoleta_cor
+    load r1, usinaGratis
+    loadn r3, #0
+    cmp r1, r3
+    jeq DesenhaRoleta_cor
+    loadn r4, #0
+DesenhaRoleta_cor:
     loadn r3, #0                ; cor: branco, ou vermelho se nao da
     load r1, dinheiro
     cmp r1, r4
@@ -1759,43 +1821,57 @@ TelaInicio:
     push r0
     push r1
     push r2
+    ; 1a tela: titulo e historia
     call ApagaTela
-    loadn r1, #tabInicio
+    loadn r1, #tabTitulo
     call ImprimeTabela
-    load r0, iconePessoa        ; pessoinha no objetivo
-    loadn r1, #257
-    outchar r0, r1
-
-    ; legenda com o desenho de cada construcao (nivel 1)
-    loadn r0, #364
-    loadn r1, #glifo
-    loadn r2, #20               ; casa: glifo + (1 * 4 + 1) * 4
-    add r1, r1, r2
-    loadn r2, #2816
-    call DesenhaGlifo
-    loadn r0, #484
-    loadn r1, #glifo
-    loadn r2, #36               ; comercio
-    add r1, r1, r2
-    loadn r2, #3328
-    call DesenhaGlifo
-    loadn r0, #604
-    loadn r1, #glifo
-    loadn r2, #52               ; industria
-    add r1, r1, r2
-    loadn r2, #2048
-    call DesenhaGlifo
-    loadn r0, #724
-    loadn r1, #glifo
-    loadn r2, #68               ; usina pequena
-    add r1, r1, r2
-    loadn r2, #2304
-    call DesenhaGlifo
-
-    loadn r0, #1134             ; "APERTE ENTER" piscando
-    loadn r1, #iniEnter
+    loadn r1, #glfTitulo
+    call DesenhaTabGlifos
+    loadn r0, #1047
+    loadn r1, #titEnter
     loadn r2, #3328
     call EsperaEnter
+    ; 2a tela: tutorial (legenda e controles)
+    call ApagaTela
+    loadn r1, #tabTutorial
+    call ImprimeTabela
+    loadn r1, #glfTutorial
+    call DesenhaTabGlifos
+    loadn r0, #1088
+    loadn r1, #tutEnter
+    loadn r2, #3328
+    call EsperaEnter
+    pop r2
+    pop r1
+    pop r0
+    rts
+
+; DesenhaTabGlifos: r1 = tabela (posicao, deslocamento no vetor glifo, cor)...,
+; terminada por posicao 65535
+DesenhaTabGlifos:
+    push r0
+    push r1
+    push r2
+    push r3
+    push r4
+    mov r3, r1
+    loadn r4, #65535
+DesenhaTabGlifos_loop:
+    loadi r0, r3
+    cmp r0, r4
+    jeq DesenhaTabGlifos_fim
+    inc r3
+    loadi r1, r3
+    loadn r2, #glifo
+    add r1, r1, r2
+    inc r3
+    loadi r2, r3
+    inc r3
+    call DesenhaGlifo
+    jmp DesenhaTabGlifos_loop
+DesenhaTabGlifos_fim:
+    pop r4
+    pop r3
     pop r2
     pop r1
     pop r0
@@ -1828,8 +1904,8 @@ TelaFim:
     jmp TelaFim_enter
 
 TelaFim_prazo:
-    loadn r2, #2304             ; prazo: "O PRAZO ACABOU / DIA 999 COM ... HABITANTES"
-    loadn r0, #413
+    loadn r2, #2304             ; prazo: "SEU MANDATO ACABOU / DIA 999 COM ... HABITANTES"
+    loadn r0, #411
     loadn r1, #fimP1
     call ImprimeStr
     loadn r2, #0

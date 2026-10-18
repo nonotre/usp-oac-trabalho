@@ -57,9 +57,12 @@ def jogador(s, P):
             if grande and s['din'] < P['usina'][1][0]:
                 return
             k = 1 if grande else 0
-            if s['din'] < P['usina'][k][0]:
+            preco = 0 if k == 0 and s['gratis'] else P['usina'][k][0]   # 1a usina de graca
+            if s['din'] < preco:
                 return
-            s['din'] -= P['usina'][k][0]
+            s['din'] -= preco
+            if k == 0:
+                s['gratis'] = False
             s['U'][k] += 1
             continue
         tot = {t: sum(P['CAP'][max(l, 1)] for l in s[t]) for t in 'RCI'}
@@ -71,7 +74,7 @@ def jogador(s, P):
 
 
 def jogar(P, verbose=False):
-    s = dict(R=[1], C=[1], I=[1], U=[1, 0], pop=0, din=P['DIN0'])   # vila inicial
+    s = dict(R=[], C=[], I=[], U=[0, 0], pop=0, din=P['DIN0'], gratis=True)   # mapa vazio
     for k in range(1, P['TICKS'] + 1):
         jogador(s, P)
         cap, cons = tick(s, P)
