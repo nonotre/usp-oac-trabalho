@@ -117,5 +117,5 @@ if __name__ == '__main__':
     a = ap.parse_args()
     j = Jogador(a.mif, a.acoes)
     k = j.partida()
-    print('VITORIA em', f'{k / 6:.1f} min de jogo (~{k * 10} dias)' if k else 'nao veio')
+    print('VITORIA em', f'{k / 6:.1f} min de jogo (dia {k + 1})' if k else 'nao veio')
     print(j.cpu.mostra())

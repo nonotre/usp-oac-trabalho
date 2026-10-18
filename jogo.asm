@@ -7,6 +7,7 @@
 ;
 ;  Tela (40 x 30 caracteres):
 ;    linha 0        : dinheiro, populacao, energia (consumo/producao), dia
+;                     (cada dia e' uma atualizacao, 10 s)
 ;    linha 2        : roleta (acao e preco) e mensagens
 ;    linhas 1 e 3   : em branco (separam o painel)
 ;    linhas 4 a 29  : cidade, grid de 20 x 13 blocos de 2 x 2 caracteres
@@ -56,7 +57,7 @@ candR : var #1          ; blocos com luz que ainda podem subir de nivel
 candC : var #1
 candI : var #1
 
-dia : var #1            ; dia do jogo (1 por segundo); prazo: dia 999
+dia : var #1            ; dia do jogo (1 por atualizacao, 10 s); prazo: dia 999
 subtick : var #1        ; 0 a 9: posicao na barra de ritmo
 voltas : var #1         ; voltas do laco principal desde o ultimo subtick
 resultado : var #1      ; 0 jogando, 1 venceu, 2 acabou o prazo
@@ -181,6 +182,8 @@ static glifoSel + #2, #5
 static glifoSel + #3, #6
 iconePessoa : var #1
 static iconePessoa + #0, #116
+iconeRaio : var #1
+static iconeRaio + #0, #117
 ; <<< glifos
 
 ; Nomes da roleta: 6 nomes de 12 letras + '\0' (13 posicoes cada)
@@ -194,7 +197,7 @@ nomes : string "CASA        "
 ; ----------------------------------------------------------------------------
 ;  Textos
 ; ----------------------------------------------------------------------------
-txtHudA   : string "$                 LUZ     /      DIA    "
+txtHudA   : string "$                         /      DIA    "
 txtHudB   : string "J<              $      >K               "
 
 ; mensagens: 12 letras, na linha 2, coluna 27
@@ -297,27 +300,12 @@ Pisca_fim:
     rts
 
 ; ----------------------------------------------------------------------------
-;  Subtick: 1 s = 1 dia; a cada 10 subticks faz uma atualizacao.
-;    No dia 999 sem a meta, o prazo acaba.
+;  Subtick: conta 1 s; a cada 10 subticks (1 dia) faz uma atualizacao
 ; ----------------------------------------------------------------------------
 Subtick:
     push r0
     push r1
     push r2
-    load r0, dia
-    inc r0
-    store dia, r0
-    call DesenhaDia
-    loadn r1, #999
-    cmp r0, r1
-    jne Subtick_conta
-    load r1, resultado
-    loadn r2, #0
-    cmp r1, r2
-    jne Subtick_conta
-    loadn r1, #2
-    store resultado, r1
-Subtick_conta:
     load r0, subtick
     inc r0
     store subtick, r0
@@ -1148,11 +1136,22 @@ Tick_avisaApagao:
     call Mensagem
 
 Tick_fimCidade:
+    load r0, dia                ; cada atualizacao e' um dia
+    inc r0
+    store dia, r0
     load r0, popul
     loadn r1, #10000
     cmp r0, r1
-    jle Tick_hud
+    jle Tick_prazo
     loadn r0, #1
+    store resultado, r0
+    jmp Tick_hud
+Tick_prazo:
+    load r0, dia                ; dia 999 sem a meta: acabou o prazo
+    loadn r1, #999
+    cmp r0, r1
+    jle Tick_hud
+    loadn r0, #2
     store resultado, r0
 Tick_hud:
     loadn r0, #0
@@ -1241,6 +1240,11 @@ DesenhaHud:
     loadn r1, #14
     call ImprimeNum0
 
+    load r0, iconeRaio          ; raio amarelo no lugar de "LUZ"
+    loadn r1, #2816
+    add r0, r0, r1
+    loadn r1, #20
+    outchar r0, r1
     load r0, apagao
     loadn r1, #0
     cmp r0, r1

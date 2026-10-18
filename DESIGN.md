@@ -45,7 +45,7 @@ Cidade simplificada no estilo SimCity (SNES). O objetivo é chegar a 100 mil hab
 
 **Início:** $500 e uma vila pronta (1 casa, 1 comércio, 1 indústria, 1 usina pequena). Sem a vila a cidade não arranca: ninguém fica sem os três tipos, e o dinheiro não paga os três mais a usina.
 
-**Fim:** 100 mil habitantes é vitória ("100 MIL HABITANTES EM ddd DIAS"). Cada segundo é um dia; no dia 999 sem a meta, o prazo acaba ("O PRAZO ACABOU", com a população alcançada). Enter recomeça.
+**Fim:** 100 mil habitantes é vitória ("100 MIL HABITANTES EM ddd DIAS"). Cada atualização (10 s) é um dia; no dia 999 sem a meta, o prazo acaba ("O PRAZO ACABOU", com a população alcançada). Enter recomeça. Com 1 dia a cada 10 s, o prazo dá ~2h45 de jogo: na prática só limita quem deixa o jogo parado.
 
 ## Balanceamento
 
@@ -73,7 +73,7 @@ Fica para depois: poluição.
 - Apagão: a energia é entregue aos blocos em ordem (de cima para baixo, da esquerda para a direita); quem passa da produção fica sem luz, em azul-escuro, e não conta para casas, serviço, empregos nem receita.
 
 **Painel:**
-- Linha 0: dinheiro, pessoinha branca (ícone 8×8 no charmap) com a população, energia `LUZ consumo/produção` (vermelha no apagão) e `DIA` (1 a 999).
+- Linha 0: dinheiro, pessoinha branca (ícone 8×8 no charmap) com a população, raio amarelo (ícone 8×8) com a energia `consumo/produção` (vermelha no apagão) e `DIA` (1 a 999, um por atualização).
 - Linha 2: roleta (ação e preço) e mensagens curtas (lote ocupado, sem dinheiro, apagão).
 - Casas, serviço e empregos não aparecem: o jogador lê o gargalo pela cidade (quem para de crescer).
 
@@ -97,8 +97,8 @@ Marrom claro não existe na paleta: o "marrom" do simulador é vermelho escuro (
 
 `ferramentas/joga_teste.py` joga o `jogo.mif` no emulador com a estratégia do `sim.py` (1 atualização = 10 dias):
 
-| Jogador | `sim.py` | `jogo.asm` | Dias |
+| Jogador | `sim.py` | `jogo.asm` | Dia da vitória |
 |---|---|---|---|
-| 4 construções a cada 10 s | 9,0 min | 9,2 min | ~550 |
-| 2 construções | 12,2 min | 12,3 min | ~740 |
-| 1 construção | 18,5 min | 18,7 min | ~1120: perde no prazo |
+| 4 construções a cada 10 s | 9,0 min | 9,2 min | 56 |
+| 2 construções | 12,2 min | 12,3 min | ~75 |
+| 1 construção | 18,5 min | 18,7 min | ~113 |
