@@ -99,14 +99,13 @@ class Jogador:
             self.constroi(t)
 
     def partida(self, max_ticks=150, verbose=True):
-        for _ in range(max_ticks):
+        for k in range(1, max_ticks + 1):
             self.turno()
             self.tecla('+')
-            k = self.m('ticks')
             if verbose and k % 5 == 0:
                 print(f"t{k:3} {k / 6:4.1f}min pop {self.m('popul') * 10:6} $ {self.m('dinheiro'):5} "
                       f"energia {self.m('cons')}/{self.m('prod')}")
-            if self.m('venceu'):
+            if self.m('resultado') == 1:
                 return k
         return None
 
@@ -118,5 +117,5 @@ if __name__ == '__main__':
     a = ap.parse_args()
     j = Jogador(a.mif, a.acoes)
     k = j.partida()
-    print('VITORIA em', f'{k / 6:.1f} min de jogo' if k else 'nao veio')
+    print('VITORIA em', f'{k / 6:.1f} min de jogo (~{k * 10} dias)' if k else 'nao veio')
     print(j.cpu.mostra())

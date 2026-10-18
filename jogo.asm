@@ -2,11 +2,11 @@
 ;  CIDADE ICMC - jogo de construir cidade para o Processador ICMC
 ;  SSC0513 Organizacao e Arquitetura de Computadores - ICMC-USP - 2026
 ;
-;  Objetivo: chegar a 100 mil habitantes no menor tempo.
+;  Objetivo: chegar a 100 mil habitantes antes do dia 999.
 ;  Regras e balanceamento: DESIGN.md
 ;
 ;  Tela (40 x 30 caracteres):
-;    linha 0        : dinheiro, populacao, energia (consumo/producao), tempo
+;    linha 0        : dinheiro, populacao, energia (consumo/producao), dia
 ;    linha 2        : roleta (acao e preco) e mensagens
 ;    linhas 1 e 3   : em branco (separam o painel)
 ;    linhas 4 a 29  : cidade, grid de 20 x 13 blocos de 2 x 2 caracteres
@@ -33,7 +33,7 @@ tipo : var #260         ; tipo de cada bloco: 0 vazio, 1 casa, 2 comercio,
                         ; 3 industria, 4 usina pequena, 5 usina grande
 nivel : var #260        ; nivel de cada bloco (1 a 3; usina sempre 1)
 luz : var #260          ; 1 se o bloco recebeu energia na ultima conta
-terreno : var #260      ; chao de cada bloco: 0 grama, 1 terra, 2 grama (outro desenho)
+terreno : var #260      ; chao de cada bloco: 0 grama, 1 terra
 semente : var #1        ; estado do gerador de numeros aleatorios
 
 sel : var #1            ; bloco selecionado (0 a 259)
@@ -56,10 +56,10 @@ candR : var #1          ; blocos com luz que ainda podem subir de nivel
 candC : var #1
 candI : var #1
 
-ticks : var #1          ; atualizacoes feitas (cada uma vale 10 s de jogo)
+dia : var #1            ; dia do jogo (1 por segundo); prazo: dia 999
 subtick : var #1        ; 0 a 9: posicao na barra de ritmo
 voltas : var #1         ; voltas do laco principal desde o ultimo subtick
-venceu : var #1
+resultado : var #1      ; 0 jogando, 1 venceu, 2 acabou o prazo
 cursorAceso : var #1    ; 1 = cursor mostrando o contorno
 piscaVoltas : var #1    ; voltas desde a ultima troca do cursor
 
@@ -96,10 +96,9 @@ static corTipo + #3, #2048      ; industria: cinza
 static corTipo + #4, #2304      ; usinas: vermelho
 static corTipo + #5, #2304
 
-corTerreno : var #3     ; cor do chao por terreno
-static corTerreno + #0, #3584   ; grama: aqua (verde claro)
-static corTerreno + #1, #256    ; terra: marrom
-static corTerreno + #2, #3584
+corTerreno : var #2     ; cor do chao (liso) por terreno
+static corTerreno + #0, #3584   ; grama: aqua (o verde mais claro da paleta)
+static corTerreno + #1, #256    ; terra: marrom (unico marrom da paleta)
 
 capNivel : var #4       ; casas / servico / empregos por nivel, em dezenas
 static capNivel + #0, #0
@@ -123,67 +122,65 @@ static energia + #15, #10
 ; arte/blocos.txt; arte/gera_arte.py gera o charmap.mif e a tabela abaixo.
 ; >>> glifos (gerado por arte/gera_arte.py a partir de arte/blocos.txt)
 glifo : var #96
-static glifo + #0, #1          ; grama
-static glifo + #1, #2
-static glifo + #2, #3
-static glifo + #3, #5
-static glifo + #4, #10          ; terra
-static glifo + #5, #11
-static glifo + #6, #12
-static glifo + #7, #13
-static glifo + #8, #6          ; grama2
-static glifo + #9, #7
-static glifo + #10, #8
-static glifo + #11, #9
-static glifo + #20, #18          ; casa1
-static glifo + #21, #19
-static glifo + #22, #20
-static glifo + #23, #21
-static glifo + #24, #22          ; casa2
-static glifo + #25, #23
-static glifo + #26, #24
-static glifo + #27, #25
-static glifo + #28, #26          ; casa3
-static glifo + #29, #27
-static glifo + #30, #28
-static glifo + #31, #29
-static glifo + #36, #30          ; comercio1
-static glifo + #37, #31
-static glifo + #38, #97
-static glifo + #39, #98
-static glifo + #40, #99          ; comercio2
-static glifo + #41, #100
-static glifo + #42, #101
-static glifo + #43, #102
-static glifo + #44, #103          ; comercio3
-static glifo + #45, #104
-static glifo + #46, #105
-static glifo + #47, #106
-static glifo + #52, #107          ; industria1
-static glifo + #53, #108
-static glifo + #54, #109
-static glifo + #55, #110
-static glifo + #56, #111          ; industria2
-static glifo + #57, #112
-static glifo + #58, #113
-static glifo + #59, #114
-static glifo + #60, #115          ; industria3
-static glifo + #61, #116
-static glifo + #62, #117
-static glifo + #63, #118
-static glifo + #68, #119          ; usina_pequena
-static glifo + #69, #120
-static glifo + #70, #121
-static glifo + #71, #122
-static glifo + #84, #123          ; usina_grande
-static glifo + #85, #124
-static glifo + #86, #125
-static glifo + #87, #126
+static glifo + #0, #1          ; chao
+static glifo + #1, #1
+static glifo + #2, #1
+static glifo + #3, #1
+static glifo + #4, #1          ; chao
+static glifo + #5, #1
+static glifo + #6, #1
+static glifo + #7, #1
+static glifo + #20, #7          ; casa1
+static glifo + #21, #8
+static glifo + #22, #9
+static glifo + #23, #10
+static glifo + #24, #11          ; casa2
+static glifo + #25, #12
+static glifo + #26, #13
+static glifo + #27, #14
+static glifo + #28, #15          ; casa3
+static glifo + #29, #16
+static glifo + #30, #17
+static glifo + #31, #18
+static glifo + #36, #19          ; comercio1
+static glifo + #37, #20
+static glifo + #38, #21
+static glifo + #39, #22
+static glifo + #40, #23          ; comercio2
+static glifo + #41, #24
+static glifo + #42, #25
+static glifo + #43, #26
+static glifo + #44, #27          ; comercio3
+static glifo + #45, #28
+static glifo + #46, #29
+static glifo + #47, #30
+static glifo + #52, #31          ; industria1
+static glifo + #53, #97
+static glifo + #54, #98
+static glifo + #55, #99
+static glifo + #56, #100          ; industria2
+static glifo + #57, #101
+static glifo + #58, #102
+static glifo + #59, #103
+static glifo + #60, #104          ; industria3
+static glifo + #61, #105
+static glifo + #62, #106
+static glifo + #63, #107
+static glifo + #68, #108          ; usina_pequena
+static glifo + #69, #109
+static glifo + #70, #110
+static glifo + #71, #111
+static glifo + #84, #112          ; usina_grande
+static glifo + #85, #113
+static glifo + #86, #114
+static glifo + #87, #115
 glifoSel : var #4
-static glifoSel + #0, #14          ; cursor
-static glifoSel + #1, #15
-static glifoSel + #2, #16
-static glifoSel + #3, #17
+static glifoSel + #0, #2          ; cursor
+static glifoSel + #1, #3
+static glifoSel + #2, #5
+static glifoSel + #3, #6
+iconePessoa : var #1
+static iconePessoa + #0, #116
 ; <<< glifos
 
 ; Nomes da roleta: 6 nomes de 12 letras + '\0' (13 posicoes cada)
@@ -197,7 +194,7 @@ nomes : string "CASA        "
 ; ----------------------------------------------------------------------------
 ;  Textos
 ; ----------------------------------------------------------------------------
-txtHudA   : string "$       POP         LUZ     /        :  "
+txtHudA   : string "$                 LUZ     /      DIA    "
 txtHudB   : string "J<              $      >K               "
 
 ; mensagens: 12 letras, na linha 2, coluna 27
@@ -210,7 +207,7 @@ msgApagao   : string "APAGAO!     "
 
 ini1  : string "C I D A D E   I C M C"
 ini2  : string "VOCE E O PREFEITO. LEVE A CIDADE A"
-ini3  : string "100 MIL HABITANTES NO MENOR TEMPO."
+ini3  : string "100 MIL HABITANTES ATE O DIA 999."
 ini4  : string "CASA       LUGAR PARA MORAR"
 ini5  : string "COMERCIO   SEM ELE O POVO VAI EMBORA"
 ini6  : string "INDUSTRIA  SEM EMPREGO O POVO SAI"
@@ -224,7 +221,9 @@ ini13 : string "+              ADIANTAR O TEMPO"
 ini14 : string "ENTER PARA COMECAR"
 
 fim1 : string "1 0 0   M I L   H A B I T A N T E S"
-fim2 : string "TEMPO:   :"
+fim2 : string "EM     DIAS"
+fimP1 : string "O PRAZO ACABOU"
+fimP2 : string "DIA 999 COM        HABITANTES"
 fim3 : string "ENTER PARA JOGAR DE NOVO"
 
 ; ============================================================================
@@ -254,7 +253,7 @@ Laco_semTecla:
     store voltas, r0
     call Subtick
 Laco_fim:
-    load r0, venceu
+    load r0, resultado
     loadn r1, #0
     cmp r0, r1
     jeq Laco
@@ -298,12 +297,27 @@ Pisca_fim:
     rts
 
 ; ----------------------------------------------------------------------------
-;  Subtick: conta 1 s; a cada 10 subticks faz uma atualizacao
+;  Subtick: 1 s = 1 dia; a cada 10 subticks faz uma atualizacao.
+;    No dia 999 sem a meta, o prazo acaba.
 ; ----------------------------------------------------------------------------
 Subtick:
     push r0
     push r1
     push r2
+    load r0, dia
+    inc r0
+    store dia, r0
+    call DesenhaDia
+    loadn r1, #999
+    cmp r0, r1
+    jne Subtick_conta
+    load r1, resultado
+    loadn r2, #0
+    cmp r1, r2
+    jne Subtick_conta
+    loadn r1, #2
+    store resultado, r1
+Subtick_conta:
     load r0, subtick
     inc r0
     store subtick, r0
@@ -338,19 +352,23 @@ NovoJogo_zera:
     loadn r2, #luz
     add r2, r2, r0
     storei r2, r3
+    loadn r2, #terreno          ; tudo grama; GeraTerreno poe a terra
+    add r2, r2, r0
+    storei r2, r3
     inc r0
     cmp r0, r1
     jne NovoJogo_zera
 
     store popul, r3
-    store ticks, r3
     store subtick, r3
     store voltas, r3
-    store venceu, r3
+    store resultado, r3
     store ferr, r3
     store piscaVoltas, r3
     loadn r0, #1
     store cursorAceso, r0
+    loadn r0, #1
+    store dia, r0
     loadn r0, #500
     store dinheiro, r0
     loadn r0, #148              ; selecao logo abaixo da vila
@@ -1130,15 +1148,12 @@ Tick_avisaApagao:
     call Mensagem
 
 Tick_fimCidade:
-    load r0, ticks
-    inc r0
-    store ticks, r0
     load r0, popul
     loadn r1, #10000
     cmp r0, r1
     jle Tick_hud
     loadn r0, #1
-    store venceu, r0
+    store resultado, r0
 Tick_hud:
     loadn r0, #0
     store subtick, r0
@@ -1219,8 +1234,11 @@ DesenhaHud:
     loadn r1, #5
     loadn r2, #5
     call ImprimeNum
+    load r0, iconePessoa        ; pessoinha branca no lugar de "POP"
+    loadn r1, #8
+    outchar r0, r1
     load r0, popul
-    loadn r1, #16
+    loadn r1, #14
     call ImprimeNum0
 
     load r0, apagao
@@ -1230,28 +1248,32 @@ DesenhaHud:
     loadn r3, #2304
 DesenhaHud_energia:
     load r0, cons
-    loadn r1, #27
+    loadn r1, #25
     loadn r2, #4
     call ImprimeNum
     load r0, prod
-    loadn r1, #32
+    loadn r1, #30
     call ImprimeNum
-
-    loadn r3, #0                ; tempo = ticks * 10 s, em mm:ss
-    loadn r2, #2
-    load r0, ticks
-    loadn r1, #10
-    mul r0, r0, r1
-    loadn r1, #60
-    div r5, r0, r1
-    mod r0, r0, r1
-    loadn r1, #39
-    call ImprimeNum
-    mov r0, r5
-    loadn r1, #36
-    call ImprimeNum
+    call DesenhaDia
 
     pop r5
+    pop r3
+    pop r2
+    pop r1
+    pop r0
+    rts
+
+; DesenhaDia: dia com 3 digitos no fim da linha 0
+DesenhaDia:
+    push r0
+    push r1
+    push r2
+    push r3
+    load r0, dia
+    loadn r1, #39
+    loadn r2, #3
+    loadn r3, #0
+    call ImprimeNum
     pop r3
     pop r2
     pop r1
@@ -1424,8 +1446,8 @@ Rand:
     pop r1
     rts
 
-; GeraTerreno: grama em todo o mapa (1 em 4 com o outro desenho) e 6
-; manchas de terra de ate 3 x 3 blocos em lugares sorteados
+; GeraTerreno: 6 manchas de terra de ate 3 x 3 blocos em lugares sorteados
+; (o resto ja e' grama: NovoJogo zera o terreno)
 GeraTerreno:
     push r0
     push r1
@@ -1435,25 +1457,6 @@ GeraTerreno:
     push r5
     push r6
     push r7
-
-    loadn r1, #0
-GeraTerreno_grama:
-    call Rand
-    loadn r2, #4
-    mod r0, r0, r2
-    loadn r3, #0                ; grama
-    loadn r2, #0
-    cmp r0, r2
-    jne GeraTerreno_grava
-    loadn r3, #2                ; grama com o outro desenho
-GeraTerreno_grava:
-    loadn r2, #terreno
-    add r2, r2, r1
-    storei r2, r3
-    inc r1
-    loadn r2, #260
-    cmp r1, r2
-    jne GeraTerreno_grama
 
     loadn r7, #6                ; r7 = manchas que faltam
 GeraTerreno_mancha:
@@ -1616,35 +1619,47 @@ TelaFim:
     push r1
     push r2
     push r3
-    push r5
     call ApagaTela
-    loadn r2, #2816
+    load r0, resultado
+    loadn r1, #1
+    cmp r0, r1
+    jne TelaFim_prazo
+
+    loadn r2, #2816             ; venceu: "100 MIL HABITANTES / EM ddd DIAS"
     loadn r0, #402
     loadn r1, #fim1
     call ImprimeStr
     loadn r2, #0
-    loadn r0, #575
+    loadn r0, #574
     loadn r1, #fim2
     call ImprimeStr
-    loadn r3, #0                ; tempo mm:ss nas colunas 22-23 e 25-26
-    loadn r2, #2
-    load r0, ticks
-    loadn r1, #10
-    mul r0, r0, r1
-    loadn r1, #60
-    div r5, r0, r1
-    mod r0, r0, r1
-    loadn r1, #586
+    load r0, dia
+    loadn r1, #579
+    loadn r2, #3
+    loadn r3, #0
     call ImprimeNum
-    mov r0, r5
-    loadn r1, #583
-    call ImprimeNum
+    jmp TelaFim_enter
+
+TelaFim_prazo:
+    loadn r2, #2304             ; prazo: "O PRAZO ACABOU / DIA 999 COM ... HABITANTES"
+    loadn r0, #413
+    loadn r1, #fimP1
+    call ImprimeStr
+    loadn r2, #0
+    loadn r0, #565
+    loadn r1, #fimP2
+    call ImprimeStr
+    load r0, popul
+    loadn r1, #581
+    loadn r3, #0
+    call ImprimeNum0
+
+TelaFim_enter:
     loadn r2, #3328
     loadn r0, #848
     loadn r1, #fim3
     call ImprimeStr
     call EsperaEnter
-    pop r5
     pop r3
     pop r2
     pop r1

@@ -1,6 +1,6 @@
 # Design do jogo
 
-Cidade simplificada no estilo SimCity (SNES). O objetivo é chegar a 100 mil habitantes no menor tempo.
+Cidade simplificada no estilo SimCity (SNES). O objetivo é chegar a 100 mil habitantes antes do dia 999.
 
 ## Limites do Processador ICMC que moldam o jogo
 
@@ -45,7 +45,7 @@ Cidade simplificada no estilo SimCity (SNES). O objetivo é chegar a 100 mil hab
 
 **Início:** $500 e uma vila pronta (1 casa, 1 comércio, 1 indústria, 1 usina pequena). Sem a vila a cidade não arranca: ninguém fica sem os três tipos, e o dinheiro não paga os três mais a usina.
 
-**Fim:** 100 mil habitantes. Sem limite de tempo; o placar é o tempo gasto.
+**Fim:** 100 mil habitantes é vitória ("100 MIL HABITANTES EM ddd DIAS"). Cada segundo é um dia; no dia 999 sem a meta, o prazo acaba ("O PRAZO ACABOU", com a população alcançada). Enter recomeça.
 
 ## Balanceamento
 
@@ -73,18 +73,18 @@ Fica para depois: poluição.
 - Apagão: a energia é entregue aos blocos em ordem (de cima para baixo, da esquerda para a direita); quem passa da produção fica sem luz, em azul-escuro, e não conta para casas, serviço, empregos nem receita.
 
 **Painel:**
-- Linha 0: dinheiro, população, energia `consumo/produção` (vermelha no apagão) e tempo.
+- Linha 0: dinheiro, pessoinha branca (ícone 8×8 no charmap) com a população, energia `LUZ consumo/produção` (vermelha no apagão) e `DIA` (1 a 999).
 - Linha 2: roleta (ação e preço) e mensagens curtas (lote ocupado, sem dinheiro, apagão).
 - Casas, serviço e empregos não aparecem: o jogador lê o gargalo pela cidade (quem para de crescer).
 
-**Visual:** o chão é um mapa contínuo de grama verde clara com tufinhos, com manchas de terra marrom. Os prédios são lotes quadrados de 15×15 pontos na cor do tipo, com o desenho em preto e uma linha preta separando os lotes. Desenhos em `arte/blocos.txt`.
+**Visual:** o chão é liso: grama (aqua, o verde mais claro da paleta) com manchas de terra (marrom, o único da paleta; tons pastel não existem nas 16 cores fixas do simulador). Grama e terra usam o mesmo caractere cheio, só muda a cor. Os prédios são lotes quadrados de 15×15 pontos na cor do tipo, com o desenho em preto e uma linha preta separando os lotes. Desenhos em `arte/blocos.txt`.
 
-**Mapa aleatório:** a cada partida, grama em tudo (1 em 4 com outro desenho de tufos) e 6 manchas de terra de até 3×3 blocos (centro sempre, vizinhos com chance de 1/2). A semente muda com o tempo que o jogador leva para apertar Enter na tela inicial. A terra é só visual: dá para construir em cima e, ao demolir, ela volta.
+**Mapa aleatório:** a cada partida, grama em tudo e 6 manchas de terra de até 3×3 blocos (centro sempre, vizinhos com chance de 1/2). A semente muda com o tempo que o jogador leva para apertar Enter na tela inicial. A terra é só visual: dá para construir em cima e, ao demolir, ela volta.
 
 | Bloco | Cor | Níveis |
 |---|---|---|
-| Grama | aqua (verde menta claro) | |
-| Terra | marrom (sai avermelhado: é o único marrom da paleta) | |
+| Grama | aqua (verde menta claro), liso | |
+| Terra | marrom (avermelhado), liso | |
 | Casa | amarelo | casinha, duas casas, prédio |
 | Comércio | rosa | loja, galeria, torre |
 | Indústria | cinza | fábrica pequena, média, grande |
@@ -95,10 +95,10 @@ Marrom claro não existe na paleta: o "marrom" do simulador é vermelho escuro (
 
 ## Conferência com a simulação
 
-`ferramentas/joga_teste.py` joga o `jogo.mif` no emulador com a estratégia do `sim.py`:
+`ferramentas/joga_teste.py` joga o `jogo.mif` no emulador com a estratégia do `sim.py` (1 atualização = 10 dias):
 
-| Jogador | `sim.py` | `jogo.asm` |
-|---|---|---|
-| 4 construções a cada 10 s | 9,0 min | 9,2 min |
-| 2 construções | 12,2 min | 12,3 min |
-| 1 construção | 18,5 min | 18,7 min |
+| Jogador | `sim.py` | `jogo.asm` | Dias |
+|---|---|---|---|
+| 4 construções a cada 10 s | 9,0 min | 9,2 min | ~550 |
+| 2 construções | 12,2 min | 12,3 min | ~740 |
+| 1 construção | 18,5 min | 18,7 min | ~1120: perde no prazo |
