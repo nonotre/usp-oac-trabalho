@@ -115,6 +115,7 @@ O fundo de todo caractere é preto: não há como pôr duas cores no mesmo carac
 
 - `SOUND rx, ry, rz`: toca a frequência `rx` (Hz) por `ry` ms com a onda `rz` (0 seno, 1 quadrada, 2 triângulo, 3 dente de serra). Implementado em `Simulator_Source/Sound.cpp` com SDL2.
 - O `play_note` do simulador espera a nota acabar antes de seguir: **o processador para durante o som**. Notas longas congelam o jogo.
+- O áudio usa blocos de 2048 amostras (~46 ms a 44,1 kHz) e amplitude fixa (sem volume). Notas abaixo de ~30 ms saem cortadas de forma irregular.
 - O emulador Python ignora `SOUND` (não toca nada).
 
 ## Charmap

@@ -119,7 +119,6 @@ Instrução `SOUND frequência, duração (ms), onda` do simulador do professor 
 
 | Quando | Som |
 |---|---|
-| Mover o cursor | toque grave curtíssimo (8 ms) |
 | J / K na roleta | clique mais grave / mais agudo |
 | Construir casa | duas notas subindo (triângulo) |
 | Construir comércio | três notas subindo (quadrada) |
@@ -134,5 +133,7 @@ Instrução `SOUND frequência, duração (ms), onda` do simulador do professor 
 | R (reiniciar) | três notas descendo |
 | Enter nas telas | bipe |
 | Vitória / mandato acabou | melodia de 4 / 3 notas |
+
+Mover o cursor não tem som: o simulador não tem volume e o áudio dele trabalha em blocos de ~46 ms (2048 amostras), então notas muito curtas saem altas e inconsistentes (às vezes inteiras, às vezes cortadas). Por isso nenhuma nota tem menos de 30 ms.
 
 **O simulador para enquanto o som toca** (tela e teclado congelam), então os sons do jogo têm 15 a 160 ms; só vitória e derrota são mais longos, quando o jogo já acabou.

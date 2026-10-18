@@ -276,19 +276,14 @@ static somDerrota + #7, #450
 static somDerrota + #8, #2
 static somDerrota + #9, #0
 
-somMove : var #4
-static somMove + #0, #330
-static somMove + #1, #8
-static somMove + #2, #0
-static somMove + #3, #0
 somRoletaEsq : var #4
 static somRoletaEsq + #0, #900
-static somRoletaEsq + #1, #15
+static somRoletaEsq + #1, #40
 static somRoletaEsq + #2, #2
 static somRoletaEsq + #3, #0
 somRoletaDir : var #4
 static somRoletaDir + #0, #1200
-static somRoletaDir + #1, #15
+static somRoletaDir + #1, #40
 static somRoletaDir + #2, #2
 static somRoletaDir + #3, #0
 somCasa : var #7
@@ -1157,8 +1152,6 @@ NovaSel:
     call DesenhaBloco           ; antiga volta a cor normal
     mov r0, r1
     call DesenhaBloco           ; nova com o contorno
-    loadn r0, #somMove
-    call Som
     pop r2
     pop r0
     rts
