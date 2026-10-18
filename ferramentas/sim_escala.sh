@@ -3,6 +3,8 @@
 #   - ICMC_ESCALA=N (padrao 2, como o original): cada ponto vira N x N pixels
 #   - a area de desenho fica com o tamanho exato da tela (320N x 240N), sem a
 #     tarja preta de 7 pixels que o original deixa embaixo (645 x 487)
+#   - a largura minima da janela acompanha a escala (o original fixa 1024, e
+#     o gerenciador de janelas pode cortar o resto)
 # O processador nao muda: so o desenho da janela. Saida: ../material/bin/sim-escala
 set -e
 cd "$(dirname "$0")/.."
@@ -23,6 +25,8 @@ rep('gtk_widget_queue_draw_area(outputarea, 16*(pos%40), 16*(pos/40), 16, 16);',
     'gtk_widget_queue_draw_area(outputarea, 8*escala()*(pos%40), 8*escala()*(pos/40), 8*escala(), 8*escala());')
 rep('gtk_widget_set_size_request(outputarea , 645, 487);',
     'gtk_widget_set_size_request(outputarea , 320*escala(), 240*escala());')
+rep('gtk_widget_set_size_request(window, 1024, -1);',
+    'gtk_widget_set_size_request(window, 320*escala() + 374 + 40 > 1024 ? 320*escala() + 374 + 40 : 1024, -1);')
 rep('gtk_widget_set_size_request(textview, 374, 487);',
     'gtk_widget_set_size_request(textview, 374, 240*escala());')
 rep('vi->_draw_pixmap(cr, vi->block[i].sym, 16*(i%40), 16*(i/40), 2, vi->block[i].color);',

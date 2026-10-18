@@ -59,6 +59,7 @@ g++ main.cpp View.cpp Controller.cpp Sound.cpp Model.cpp -O3 -march=native -o ..
 **Cópia ampliada (`sim-escala`).** O original desenha cada ponto em 2×2 pixels; com o XWayland sem ampliação (`force_zero_scaling`) num monitor de 2880×1800 a janela fica minúscula. `ferramentas/sim_escala.sh` copia o `Simulator_Source/` para `oac/material/sim-escala/`, muda só o `View.cpp` e compila em `oac/material/bin/sim-escala`:
 - `ICMC_ESCALA=N` (padrão 2): cada ponto vira N×N pixels. O `rodar.sh` usa 4.
 - A área de desenho fica com o tamanho exato da tela (320N × 240N). O original usa 645×487 para 640×480 e deixa uma tarja preta de 7 pixels embaixo (e 5 à direita) que o jogo não alcança.
+- A largura mínima da janela acompanha a escala. O original fixa 1024 pixels e não deixa redimensionar; no Hyprland a janela abria com 1024 e cortava a área do jogo.
 - O processador (`Model.cpp`) não muda: o jogo roda igual no original.
 
 - Teclas da janela: Home liga e para a execução, Insert reseta, End executa um passo, Esc fecha. O jogo não deve usar essas.
