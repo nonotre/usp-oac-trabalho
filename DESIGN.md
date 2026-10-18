@@ -66,18 +66,16 @@ Fica para depois: poluição.
 
 ## Tela e controles
 
-- Painel no topo (linhas 0 a 4), separador na linha 5, cidade em grid de blocos de 2×2 caracteres: 20×12 = 240 blocos nas linhas 6 a 29.
+- Painel no topo em duas linhas (0 e 2), com uma linha em branco entre elas e outra antes da cidade. Cidade em grid de blocos de 2×2 caracteres: 20×13 = 260 blocos nas linhas 4 a 29. A linha em branco é o menor espaço possível: a tela é uma grade de caracteres de 8 pontos de altura.
 - Cursor: contorno branco que pisca com o bloco embaixo (troca a cada ~0,5 s; aparece na hora ao mover). Não dá para desenhar o contorno por cima do bloco: cada caractere tem uma cor só, sobre fundo preto.
 - WASD ou setas movem a seleção. J e K giram a roleta (casa, comércio, indústria, usina pequena, usina grande, demolir). Espaço aplica. `+` adianta uma atualização (para testar e apresentar).
 - Demolir devolve metade do custo.
 - Apagão: a energia é entregue aos blocos em ordem (de cima para baixo, da esquerda para a direita); quem passa da produção fica sem luz, em azul-escuro, e não conta para casas, serviço, empregos nem receita.
 
 **Painel:**
-- Linha 0: dinheiro e população.
-- Linha 1: casas, serviço e empregos, com o gargalo (o menor) em vermelho.
-- Linha 2: energia `consumo/produção` (vermelha no apagão) e tempo.
-- Linha 3: roleta, com nome e preço.
-- Linha 4: barra de ritmo (10 partes = 1 atualização) e mensagens.
+- Linha 0: dinheiro, população, energia `consumo/produção` (vermelha no apagão) e tempo.
+- Linha 2: roleta (ação e preço) e mensagens curtas (lote ocupado, sem dinheiro, apagão).
+- Casas, serviço e empregos não aparecem: o jogador lê o gargalo pela cidade (quem para de crescer).
 
 **Visual:** o chão é um mapa contínuo de grama verde clara com tufinhos, com manchas de terra marrom. Os prédios são lotes quadrados de 15×15 pontos na cor do tipo, com o desenho em preto e uma linha preta separando os lotes. Desenhos em `arte/blocos.txt`.
 

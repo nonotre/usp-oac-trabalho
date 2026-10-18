@@ -70,7 +70,7 @@ class Jogador:
             self.tecla('k')
 
     def constroi(self, tipo):
-        livre = [b for b in range(240) if self.m('tipo', b) == 0]
+        livre = [b for b in range(260) if self.m('tipo', b) == 0]
         if not livre:
             return False
         antes = self.m('dinheiro')
@@ -91,7 +91,7 @@ class Jogador:
                 else:
                     return
                 continue
-            pot = {t: sum(CAP[max(self.m('nivel', b), 1)] for b in range(240) if self.m('tipo', b) == t)
+            pot = {t: sum(CAP[max(self.m('nivel', b), 1)] for b in range(260) if self.m('tipo', b) == t)
                    for t in (1, 2, 3)}
             t = min(pot, key=pot.get)
             if din < CUSTO[t]:

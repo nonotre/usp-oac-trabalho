@@ -6,9 +6,10 @@
 ;  Regras e balanceamento: DESIGN.md
 ;
 ;  Tela (40 x 30 caracteres):
-;    linhas 0 a 4   : painel (dinheiro, populacao, gargalo, energia, roleta)
-;    linha 5        : separador
-;    linhas 6 a 29  : cidade, grid de 20 x 12 blocos de 2 x 2 caracteres
+;    linha 0        : dinheiro, populacao, energia (consumo/producao), tempo
+;    linha 2        : roleta (acao e preco) e mensagens
+;    linhas 1 e 3   : em branco (separam o painel)
+;    linhas 4 a 29  : cidade, grid de 20 x 13 blocos de 2 x 2 caracteres
 ;
 ;  Convencoes:
 ;    - populacao, casas, servico e empregos sao guardados em DEZENAS de
@@ -28,14 +29,14 @@ jmp main
 ; ----------------------------------------------------------------------------
 ;  Estado do jogo
 ; ----------------------------------------------------------------------------
-tipo : var #240         ; tipo de cada bloco: 0 vazio, 1 casa, 2 comercio,
+tipo : var #260         ; tipo de cada bloco: 0 vazio, 1 casa, 2 comercio,
                         ; 3 industria, 4 usina pequena, 5 usina grande
-nivel : var #240        ; nivel de cada bloco (1 a 3; usina sempre 1)
-luz : var #240          ; 1 se o bloco recebeu energia na ultima conta
-terreno : var #240      ; chao de cada bloco: 0 grama, 1 terra, 2 grama (outro desenho)
+nivel : var #260        ; nivel de cada bloco (1 a 3; usina sempre 1)
+luz : var #260          ; 1 se o bloco recebeu energia na ultima conta
+terreno : var #260      ; chao de cada bloco: 0 grama, 1 terra, 2 grama (outro desenho)
 semente : var #1        ; estado do gerador de numeros aleatorios
 
-sel : var #1            ; bloco selecionado (0 a 239)
+sel : var #1            ; bloco selecionado (0 a 259)
 ferr : var #1           ; acao da roleta: 0 casa ... 4 usina grande, 5 demolir
 dinheiro : var #1
 popul : var #1            ; populacao em dezenas
@@ -196,19 +197,16 @@ nomes : string "CASA        "
 ; ----------------------------------------------------------------------------
 ;  Textos
 ; ----------------------------------------------------------------------------
-txtLinha  : string "----------------------------------------"
-txtHud1   : string "DINHEIRO $         POPULACAO           "
-txtHud2   : string "CASA         SERV         EMPR         "
-txtHud3   : string "ENERGIA     /       TEMPO   :          "
-txtHud4   : string "J <              $        > K  ESPACO "
-txtHud5   : string "RITMO [          ]                     "
+txtHudA   : string "$       POP         LUZ     /        :  "
+txtHudB   : string "J<              $      >K               "
 
-msgLimpa    : string "                    "
-msgOcupado  : string "LOTE OCUPADO        "
-msgVazio    : string "LOTE VAZIO          "
-msgDinheiro : string "SEM DINHEIRO        "
-msgLibera   : string "PRECISA 20000 HAB.  "
-msgApagao   : string "APAGAO! FACA USINA  "
+; mensagens: 12 letras, na linha 2, coluna 27
+msgLimpa    : string "            "
+msgOcupado  : string "LOTE OCUPADO"
+msgVazio    : string "LOTE VAZIO  "
+msgDinheiro : string "SEM DINHEIRO"
+msgLibera   : string "PRECISA 20K "
+msgApagao   : string "APAGAO!     "
 
 ini1  : string "C I D A D E   I C M C"
 ini2  : string "VOCE E O PREFEITO. LEVE A CIDADE A"
@@ -300,17 +298,13 @@ Pisca_fim:
     rts
 
 ; ----------------------------------------------------------------------------
-;  Subtick: avanca a barra de ritmo; a cada 10 subticks faz uma atualizacao
+;  Subtick: conta 1 s; a cada 10 subticks faz uma atualizacao
 ; ----------------------------------------------------------------------------
 Subtick:
     push r0
     push r1
     push r2
     load r0, subtick
-    loadn r1, #167             ; posicao do primeiro '=' da barra (linha 4)
-    add r1, r1, r0
-    loadn r2, #'='
-    outchar r2, r1
     inc r0
     store subtick, r0
     loadn r1, #10
@@ -332,7 +326,7 @@ NovoJogo:
     push r2
     push r3
     loadn r0, #0
-    loadn r1, #240
+    loadn r1, #260
     loadn r3, #0
 NovoJogo_zera:
     loadn r2, #tipo
@@ -359,23 +353,23 @@ NovoJogo_zera:
     store cursorAceso, r0
     loadn r0, #500
     store dinheiro, r0
-    loadn r0, #130              ; selecao logo abaixo da vila
+    loadn r0, #148              ; selecao logo abaixo da vila
     store sel, r0
 
     call GeraTerreno
 
-    ; vila inicial na linha 5 do grid: usina, casa, comercio, industria
+    ; vila inicial na linha 6 do grid (a do meio): usina, casa, comercio, industria
     loadn r3, #1
-    loadn r0, #108
+    loadn r0, #126
     loadn r1, #4
     call PoeBloco
-    loadn r0, #109
+    loadn r0, #127
     loadn r1, #1
     call PoeBloco
-    loadn r0, #110
+    loadn r0, #128
     loadn r1, #2
     call PoeBloco
-    loadn r0, #111
+    loadn r0, #129
     loadn r1, #3
     call PoeBloco
 
@@ -409,23 +403,11 @@ DesenhaTudo:
     push r2
     call ApagaTela
     loadn r2, #0
-    loadn r0, #200
-    loadn r1, #txtLinha
-    call ImprimeStr
     loadn r0, #0
-    loadn r1, #txtHud1
-    call ImprimeStr
-    loadn r0, #40
-    loadn r1, #txtHud2
+    loadn r1, #txtHudA
     call ImprimeStr
     loadn r0, #80
-    loadn r1, #txtHud3
-    call ImprimeStr
-    loadn r0, #120
-    loadn r1, #txtHud4
-    call ImprimeStr
-    loadn r0, #160
-    loadn r1, #txtHud5
+    loadn r1, #txtHudB
     call ImprimeStr
     call Recalcula
     call DesenhaMapa
@@ -436,12 +418,12 @@ DesenhaTudo:
     pop r0
     rts
 
-; DesenhaMapa: redesenha os 240 blocos
+; DesenhaMapa: redesenha os 260 blocos
 DesenhaMapa:
     push r0
     push r1
     loadn r0, #0
-    loadn r1, #240
+    loadn r1, #260
 DesenhaMapa_loop:
     call DesenhaBloco
     inc r0
@@ -465,7 +447,7 @@ DesenhaBloco:
     push r6
 
     ; r2 = posicao na tela do canto superior esquerdo
-    ;    = 240 + (bloco / 20) * 80 + (bloco % 20) * 2
+    ;    = 160 + (bloco / 20) * 80 + (bloco % 20) * 2   (mapa comeca na linha 4)
     loadn r1, #20
     div r2, r0, r1
     mod r3, r0, r1
@@ -473,7 +455,7 @@ DesenhaBloco:
     mul r2, r2, r1
     add r2, r2, r3
     add r2, r2, r3
-    loadn r1, #240              ; o mapa comeca na linha 6
+    loadn r1, #160              ; o mapa comeca na linha 4
     add r2, r2, r1
 
     loadn r1, #tipo
@@ -673,7 +655,7 @@ MoveBaixo:
     push r0
     push r1
     load r0, sel
-    loadn r1, #220
+    loadn r1, #240
     cmp r0, r1
     jeg MoveBaixo_fim           ; ja esta na ultima linha
     loadn r1, #20
@@ -868,7 +850,7 @@ Recalcula:
 
     ; 1a passada: energia produzida
     loadn r1, #0
-    loadn r7, #240
+    loadn r7, #260
 Recalcula_prod:
     loadn r2, #tipo
     add r2, r2, r1
@@ -971,7 +953,7 @@ Recalcula_grava:
     pop r0
 Recalcula_prox:
     inc r1
-    loadn r7, #240
+    loadn r7, #260
     cmp r1, r7
     jne Recalcula_bloco
 
@@ -1158,12 +1140,8 @@ Tick_fimCidade:
     loadn r0, #1
     store venceu, r0
 Tick_hud:
-    loadn r0, #0                ; zera a barra de ritmo
+    loadn r0, #0
     store subtick, r0
-    loadn r0, #167
-    loadn r1, #msgLimpa
-    loadn r2, #0
-    call ImprimeStr10
     call DesenhaHud
     pop r7
     pop r6
@@ -1213,7 +1191,7 @@ SobeNivel_loop:
     jz SobeNivel_fim
 SobeNivel_prox:
     inc r2
-    loadn r3, #240
+    loadn r3, #260
     cmp r2, r3
     jne SobeNivel_loop
 SobeNivel_fim:
@@ -1228,52 +1206,23 @@ SobeNivel_fim:
 ; ----------------------------------------------------------------------------
 ;  Painel
 ; ----------------------------------------------------------------------------
-; DesenhaHud: numeros do painel. O menor entre casas, servico e empregos
-; (o gargalo) sai em vermelho; energia em vermelho no apagao.
+; DesenhaHud: numeros do painel (linha 0). Energia em vermelho no apagao.
 DesenhaHud:
     push r0
     push r1
     push r2
     push r3
-    push r4
     push r5
 
-    load r0, dinheiro
-    loadn r1, #14
-    loadn r2, #5
     loadn r3, #0
+    load r0, dinheiro
+    loadn r1, #5
+    loadn r2, #5
     call ImprimeNum
     load r0, popul
-    loadn r1, #33
+    loadn r1, #16
     call ImprimeNum0
 
-    ; r4 = gargalo
-    load r4, totR
-    load r5, totC
-    cmp r5, r4
-    jeg DesenhaHud_g2
-    mov r4, r5
-DesenhaHud_g2:
-    load r5, totI
-    cmp r5, r4
-    jeg DesenhaHud_casas
-    mov r4, r5
-
-DesenhaHud_casas:
-    load r0, totR
-    loadn r1, #49
-    call CorGargalo
-    call ImprimeNum0
-    load r0, totC
-    loadn r1, #62
-    call CorGargalo
-    call ImprimeNum0
-    load r0, totI
-    loadn r1, #75
-    call CorGargalo
-    call ImprimeNum0
-
-    loadn r3, #0
     load r0, apagao
     loadn r1, #0
     cmp r0, r1
@@ -1281,14 +1230,14 @@ DesenhaHud_casas:
     loadn r3, #2304
 DesenhaHud_energia:
     load r0, cons
-    loadn r1, #91
+    loadn r1, #27
     loadn r2, #4
     call ImprimeNum
     load r0, prod
-    loadn r1, #96
+    loadn r1, #32
     call ImprimeNum
 
-    loadn r3, #0                ; tempo = ticks * 10 s
+    loadn r3, #0                ; tempo = ticks * 10 s, em mm:ss
     loadn r2, #2
     load r0, ticks
     loadn r1, #10
@@ -1296,31 +1245,20 @@ DesenhaHud_energia:
     loadn r1, #60
     div r5, r0, r1
     mod r0, r0, r1
-    loadn r1, #110
+    loadn r1, #39
     call ImprimeNum
     mov r0, r5
-    loadn r1, #107
+    loadn r1, #36
     call ImprimeNum
 
     pop r5
-    pop r4
     pop r3
     pop r2
     pop r1
     pop r0
     rts
 
-; CorGargalo: r3 = vermelho se r0 == r4 (gargalo), senao branco; r2 = 5
-CorGargalo:
-    loadn r2, #5
-    loadn r3, #0
-    cmp r0, r4
-    jne CorGargalo_fim
-    loadn r3, #2304
-CorGargalo_fim:
-    rts
-
-; DesenhaRoleta: nome e preco da acao escolhida
+; DesenhaRoleta: nome e preco da acao escolhida (linha 2)
 DesenhaRoleta:
     push r0
     push r1
@@ -1331,7 +1269,7 @@ DesenhaRoleta:
     mul r1, r0, r1
     loadn r2, #nomes
     add r1, r1, r2
-    loadn r0, #124
+    loadn r0, #83
     loadn r2, #2816             ; amarelo
     call ImprimeStr
     load r0, ferr               ; preco = custo[ferr + 1] (demolir mostra 0)
@@ -1344,7 +1282,7 @@ DesenhaRoleta_preco:
     loadn r1, #custo
     add r1, r1, r0
     loadi r0, r1
-    loadn r1, #142
+    loadn r1, #101
     loadn r2, #5
     loadn r3, #0
     call ImprimeNum
@@ -1354,11 +1292,11 @@ DesenhaRoleta_preco:
     pop r0
     rts
 
-; Mensagem: r1 = texto de 20 letras, impresso no canto do painel
+; Mensagem: r1 = texto de 12 letras, na linha 2 a partir da coluna 27
 Mensagem:
     push r0
     push r2
-    loadn r0, #180
+    loadn r0, #107
     loadn r2, #2304
     call ImprimeStr
     pop r2
@@ -1385,27 +1323,6 @@ ImprimeStr_loop:
     inc r1
     jmp ImprimeStr_loop
 ImprimeStr_fim:
-    pop r4
-    pop r3
-    pop r1
-    pop r0
-    rts
-
-; ImprimeStr10: imprime so os 10 primeiros caracteres (r0, r1, r2 como acima)
-ImprimeStr10:
-    push r0
-    push r1
-    push r3
-    push r4
-    loadn r3, #10
-ImprimeStr10_loop:
-    loadi r4, r1
-    add r4, r4, r2
-    outchar r4, r0
-    inc r0
-    inc r1
-    dec r3
-    jnz ImprimeStr10_loop
     pop r4
     pop r3
     pop r1
@@ -1534,27 +1451,27 @@ GeraTerreno_grava:
     add r2, r2, r1
     storei r2, r3
     inc r1
-    loadn r2, #240
+    loadn r2, #260
     cmp r1, r2
     jne GeraTerreno_grama
 
     loadn r7, #6                ; r7 = manchas que faltam
 GeraTerreno_mancha:
     call Rand                   ; centro sorteado: r5 = linha, r6 = coluna
-    loadn r2, #240
-    mod r0, r0, r2
+    loadn r2, #13
+    mod r5, r0, r2
+    call Rand
     loadn r2, #20
-    div r5, r0, r2
     mod r6, r0, r2
     loadn r3, #0                ; r3 = dl (0 a 2: linha - 1 a linha + 1)
 GeraTerreno_dl:
     loadn r4, #0                ; r4 = dc
 GeraTerreno_dc:
-    add r1, r5, r3              ; r1 = linha + dl (1 a 12 = dentro do mapa)
+    add r1, r5, r3              ; r1 = linha + dl (1 a 13 = dentro do mapa)
     loadn r2, #0
     cmp r1, r2
     jeq GeraTerreno_pula
-    loadn r2, #13
+    loadn r2, #14
     cmp r1, r2
     jeq GeraTerreno_pula
     add r2, r6, r4              ; r2 = coluna + dc (1 a 20 = dentro)
