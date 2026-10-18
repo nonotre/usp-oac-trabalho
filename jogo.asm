@@ -62,6 +62,7 @@ dia : var #1            ; dia do jogo (1 por atualizacao, 10 s); prazo: dia 999
 subtick : var #1        ; 0 a 9: posicao na barra de ritmo
 voltas : var #1         ; voltas do laco principal desde o ultimo subtick
 resultado : var #1      ; 0 jogando, 1 venceu, 2 acabou o prazo
+centavos : var #1       ; receita que ainda nao fechou $1 (dezesseis avos)
 usinaGratis : var #1    ; 1 = a proxima usina pequena nao custa nada
 acelerado : var #1      ; 1 = tempo 4 vezes mais rapido (tecla +)
 setaVoltas : var #1     ; voltas que faltam para a seta da roleta reaparecer
@@ -497,6 +498,7 @@ NovoJogo_zera:
     store ferr, r3
     store piscaVoltas, r3
     store acelerado, r3
+    store centavos, r3
     loadn r0, #1
     store cursorAceso, r0
     loadn r0, #1
@@ -1162,8 +1164,10 @@ Tick_sai:
 Tick_popOk:
     store popul, r1
 
-    ; receita: para cada tipo, energia * (ocupacao em dezesseis avos) / 16
-    loadn r7, #0                ; r7 = receita
+    ; receita em dezesseis avos de real: soma de energia * ocupacao (em
+    ; dezesseis avos) de cada tipo, vezes a tarifa 3. O que nao fecha $1
+    ; fica guardado em "centavos" para os dias seguintes.
+    loadn r7, #0                ; r7 = receita (dezesseis avos)
     loadn r6, #0                ; r6 = tipo - 1
 Tick_rec:
     loadn r2, #totR
@@ -1197,18 +1201,26 @@ Tick_ocupMax:
     loadn r2, #eR
     add r2, r2, r6
     loadi r2, r2
-    mul r1, r1, r2
-    loadn r3, #16
-    div r1, r1, r3
-    add r7, r7, r1
+    mul r1, r1, r2              ; energia * ocupacao
+    mov r0, r7
+    call SomaSat
+    mov r7, r0
 Tick_recProx:
     inc r6
     loadn r3, #3
     cmp r6, r3
     jne Tick_rec
 
-    loadn r3, #3
-    mul r1, r7, r3
+    mov r0, r7                  ; r0 = 3 * receita (saturado)
+    mov r1, r7
+    call SomaSat
+    call SomaSat
+    load r1, centavos           ; + o que sobrou dos dias anteriores
+    call SomaSat
+    loadn r1, #16
+    mod r2, r0, r1
+    store centavos, r2          ; o resto fica para o proximo dia
+    div r1, r0, r1              ; reais inteiros
     load r0, dinheiro
     call SomaSat
     store dinheiro, r0

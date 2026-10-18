@@ -39,7 +39,9 @@ def tick(s, P):
     for t in 'RCI':
         occ = min(1, p / tot[t]) if tot[t] else 0
         rec += sum(P['E'][t][l] for l in s[t]) * occ * luz
-    s['din'] = min(65535, s['din'] + int(P['TAR'] * rec))
+    s['resto'] = s.get('resto', 0) + P['TAR'] * rec        # centavos guardados
+    s['din'] = min(65535, s['din'] + int(s['resto']))
+    s['resto'] -= int(s['resto'])
     if luz >= 1:
         for t in 'RCI':
             if tot[t] and p >= 0.8 * tot[t]:

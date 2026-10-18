@@ -31,7 +31,7 @@ Cidade simplificada no estilo SimCity (SNES). O objetivo é chegar a 100 mil hab
 
 **População:** a cidade comporta `mín(casas, empregos, serviço + empregos / 10)`. A indústria atrai um pouco de gente mesmo sem comércio (quem vem atrás de emprego): 10% dos empregos contam como serviço. Com 1 casa e 1 indústria e nenhum comércio, chegam umas 10 pessoas. A cada atualização chega metade do que falta até esse limite; se a população está acima, sai um quarto do excesso. Construir casa não traz gente sozinho.
 
-**Dinheiro, sem imposto:** quem está ocupado paga a conta de luz. A receita de cada tipo é `3 × energia consumida × fração ocupada`. Casa vazia e fábrica sem trabalhador não pagam. A indústria consome mais e paga mais.
+**Dinheiro, sem imposto:** quem está ocupado paga a conta de luz. A receita do dia é `3 × Σ (energia consumida × fração ocupada)`, com a ocupação em dezesseis avos. Casa vazia e fábrica sem trabalhador não pagam; a indústria consome mais e paga mais. A conta é feita em dezesseis avos de real, e o que não fecha $1 fica guardado (variável escondida `centavos`) para os dias seguintes: uma cidade que rende $0,20 por dia recebe $1 no quinto dia. Ex.: 1 casa e 1 indústria de nível 1 com 20 pessoas rendem ~$1,70 por dia.
 
 **Níveis:** construir põe o bloco no nível 1. A cada atualização, se um tipo está com 80% ou mais de ocupação e há energia sobrando, até 40% dos blocos dele sobem um nível.
 
