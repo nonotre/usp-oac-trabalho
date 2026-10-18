@@ -16,6 +16,10 @@
 
 Comandos a partir de `oac/usp-oac-trabalho/`.
 
+## Jogar sem terminal (Linux, nesta máquina)
+
+Atalho no menu de aplicativos: **Cidade ICMC** (`~/.local/share/applications/cidade-icmc.desktop`, que chama o `rodar.sh`). Para tirar, apague esse arquivo. Pelo terminal: `~/Work/faculdade/oac/usp-oac-trabalho/rodar.sh`.
+
 ## Montador
 
 - Código: repo do professor, `NovoMontadorLinux/Montador_Ultimo_Beta_64Kb/`. Clone local em `oac/material/Processador-ICMC/` (fora do git).

@@ -1,3 +1,6 @@
 *.mif
 !charmap.mif
+!jogo.mif
 __pycache__/
+simple_simulator/simple_simulator
+simple_simulator/simple_simulator.exe
