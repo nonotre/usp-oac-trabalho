@@ -134,4 +134,4 @@ Compilar como o simulador normal, rodar uns 8 s com `timeout 9 ./simbench jogo.m
 
 Regra: `voltasPorSub = instruções por segundo / (2 × esperaN + 31)`; mantenha abaixo de 65535 (se passar, aumente `esperaN`).
 
-O emulador Python (~1 milhão por segundo) fica ~30 vezes mais lento que o simulador; para testar nele, use `+` para adiantar o tempo.
+O emulador Python (~1 milhão por segundo) fica ~30 vezes mais lento que o simulador: um dia leva uns 5 minutos nele. Para testar, `joga_teste.py` adianta o tempo mexendo direto na memória (`passa_dia`: põe `subtick` e `voltas` no limite).

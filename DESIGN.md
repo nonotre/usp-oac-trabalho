@@ -68,7 +68,7 @@ Fica para depois: poluição.
 
 - Painel no topo: linha 0 em branco (borda), linha 1 com os números, linha 2 em branco, linha 3 com a roleta. Cidade em grid de blocos de 2×2 caracteres: 20×13 = 260 blocos nas linhas 4 a 29. Não existe meia linha: a tela é uma grade de caracteres de 8 pontos de altura.
 - Cursor: pisca a cada ~0,5 s (aparece na hora ao mover). Cada caractere tem uma cor só, sobre preto, então um contorno branco por cima com o miolo visível não existe. No chão, o cursor recorta uma borda preta de 2 pontos e o miolo fica na cor do terreno; no prédio, o desenho acende em branco (recortar a borda em cada prédio custaria 44 caracteres; só sobram 15).
-- WASD ou setas movem a seleção. J e K giram a roleta (casa, comércio, indústria, usina pequena, usina grande, demolir); as teclas não aparecem escritas no painel, só na tela inicial. Espaço aplica. `+` adianta uma atualização (para testar e apresentar).
+- WASD ou setas movem a seleção. J e K giram a roleta (casa, comércio, indústria, usina pequena, usina grande, demolir); as teclas não aparecem escritas no painel, só na tela inicial. Espaço aplica. `+` liga e desliga o tempo acelerado (4×: um dia a cada 2,5 s); enquanto acelerado, o número do dia fica amarelo.
 - Demolir devolve metade do custo.
 - Apagão: a energia é entregue aos blocos em ordem (de cima para baixo, da esquerda para a direita); quem passa da produção fica sem luz, em azul-escuro, e não conta para casas, serviço, empregos nem receita.
 

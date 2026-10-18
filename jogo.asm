@@ -62,6 +62,7 @@ dia : var #1            ; dia do jogo (1 por atualizacao, 10 s); prazo: dia 999
 subtick : var #1        ; 0 a 9: posicao na barra de ritmo
 voltas : var #1         ; voltas do laco principal desde o ultimo subtick
 resultado : var #1      ; 0 jogando, 1 venceu, 2 acabou o prazo
+acelerado : var #1      ; 1 = tempo 4 vezes mais rapido (tecla +)
 setaVoltas : var #1     ; voltas que faltam para a seta da roleta reaparecer
 cursorAceso : var #1    ; 1 = cursor mostrando o contorno
 piscaVoltas : var #1    ; voltas desde a ultima troca do cursor
@@ -229,7 +230,7 @@ iniA2     : string "ESCOLHER"
 iniT3     : string "ESPACO"
 iniA3     : string "CONSTRUIR"
 iniT4     : string "+"
-iniA4     : string "PASSA O DIA"
+iniA4     : string "ACELERA"
 iniEnter  : string "APERTE ENTER"
 tabInicio : var #58
 static tabInicio + #0, #129
@@ -319,8 +320,14 @@ Laco_semTecla:
     inc r0
     store voltas, r0
     load r1, voltasPorSub
+    load r2, acelerado          ; acelerado: 1 s vira 1/4 de s
+    loadn r3, #0
+    cmp r2, r3
+    jeq Laco_conta
+    shiftr0 r1, #2
+Laco_conta:
     cmp r0, r1
-    jne Laco_fim
+    jle Laco_fim
     loadn r0, #0
     store voltas, r0
     call Subtick
@@ -441,6 +448,7 @@ NovoJogo_zera:
     store resultado, r3
     store ferr, r3
     store piscaVoltas, r3
+    store acelerado, r3
     loadn r0, #1
     store cursorAceso, r0
     loadn r0, #1
@@ -715,7 +723,11 @@ TrataTecla_aplica:
     call Aplica
     jmp TrataTecla_fim
 TrataTecla_tempo:
-    call Tick
+    load r0, acelerado          ; liga/desliga o tempo acelerado
+    loadn r1, #1
+    xor r0, r0, r1
+    store acelerado, r0
+    call DesenhaDia
 TrataTecla_fim:
     pop r1
     pop r0
@@ -1326,16 +1338,21 @@ DesenhaHud_energia:
     pop r0
     rts
 
-; DesenhaDia: dia com 3 digitos no fim da linha 1
+; DesenhaDia: dia com 3 digitos no fim da linha 1 (amarelo se acelerado)
 DesenhaDia:
     push r0
     push r1
     push r2
     push r3
+    loadn r3, #0
+    load r0, acelerado
+    cmp r0, r3
+    jeq DesenhaDia_imprime
+    loadn r3, #2816
+DesenhaDia_imprime:
     load r0, dia
     loadn r1, #79
     loadn r2, #3
-    loadn r3, #0
     call ImprimeNum
     pop r3
     pop r2

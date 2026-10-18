@@ -1,7 +1,7 @@
 """Joga uma partida automatica do jogo.mif no emulador, pelo teclado.
 
-Usa a mesma estrategia gulosa de balanceamento/sim.py e o atalho '+' para
-adiantar o tempo. Serve para conferir se o Assembly se comporta como a
+Usa a mesma estrategia gulosa de balanceamento/sim.py e adianta o tempo direto
+na memoria (passa_dia). Serve para conferir se o Assembly se comporta como a
 simulacao.
 
 Uso: python3 joga_teste.py [jogo.mif] [--acoes 4]
@@ -57,6 +57,16 @@ class Jogador:
         while c.sp != 0x7FFC:          # e volta ao laco principal
             c.passo()
 
+    def passa_dia(self):
+        """Adianta o tempo ate a proxima atualizacao (sem tecla: poe os contadores no limite)."""
+        c, d = self.cpu, self.m('dia')
+        c.mem[self.v['subtick']] = 9
+        c.mem[self.v['voltas']] = c.mem[self.v['voltasPorSub']]
+        while self.m('dia') == d and self.m('resultado') == 0:
+            c.passo()
+        while c.sp != 0x7FFC:
+            c.passo()
+
     def vai(self, alvo):
         while self.m('sel') != alvo:
             s = self.m('sel')
@@ -101,7 +111,7 @@ class Jogador:
     def partida(self, max_ticks=150, verbose=True):
         for k in range(1, max_ticks + 1):
             self.turno()
-            self.tecla('+')
+            self.passa_dia()
             if verbose and k % 5 == 0:
                 print(f"t{k:3} {k / 6:4.1f}min pop {self.m('popul') * 10:6} $ {self.m('dinheiro'):5} "
                       f"energia {self.m('cons')}/{self.m('prod')}")
