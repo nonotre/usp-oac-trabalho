@@ -66,16 +66,16 @@ Fica para depois: poluição.
 
 ## Tela e controles
 
-- Painel no topo em duas linhas (0 e 2), com uma linha em branco entre elas e outra antes da cidade. Cidade em grid de blocos de 2×2 caracteres: 20×13 = 260 blocos nas linhas 4 a 29. A linha em branco é o menor espaço possível: a tela é uma grade de caracteres de 8 pontos de altura.
+- Painel no topo: linha 0 em branco (borda), linha 1 com os números, linha 2 em branco, linha 3 com a roleta. Cidade em grid de blocos de 2×2 caracteres: 20×13 = 260 blocos nas linhas 4 a 29. Não existe meia linha: a tela é uma grade de caracteres de 8 pontos de altura.
 - Cursor: contorno branco que pisca com o bloco embaixo (troca a cada ~0,5 s; aparece na hora ao mover). Não dá para desenhar o contorno por cima do bloco: cada caractere tem uma cor só, sobre fundo preto.
-- WASD ou setas movem a seleção. J e K giram a roleta (casa, comércio, indústria, usina pequena, usina grande, demolir). Espaço aplica. `+` adianta uma atualização (para testar e apresentar).
+- WASD ou setas movem a seleção. J e K giram a roleta (casa, comércio, indústria, usina pequena, usina grande, demolir); as teclas não aparecem escritas no painel, só na tela inicial. Espaço aplica. `+` adianta uma atualização (para testar e apresentar).
 - Demolir devolve metade do custo.
 - Apagão: a energia é entregue aos blocos em ordem (de cima para baixo, da esquerda para a direita); quem passa da produção fica sem luz, em azul-escuro, e não conta para casas, serviço, empregos nem receita.
 
 **Painel:**
-- Linha 0: dinheiro, pessoinha branca (ícone 8×8 no charmap) com a população, raio amarelo (ícone 8×8) com a energia `consumo/produção` (vermelha no apagão) e `DIA` (1 a 999, um por atualização).
-- Linha 2: roleta (ação e preço) e mensagens curtas (lote ocupado, sem dinheiro, apagão).
-- Casas, serviço e empregos não aparecem: o jogador lê o gargalo pela cidade (quem para de crescer).
+- Linha 1: dinheiro, pessoinha branca com a população, raio amarelo com a energia `consumo/produção` (vermelha no apagão) e `DIA` (1 a 999).
+- Linha 3: `CONSTRUIR: ◀ AÇÃO ▶ VALOR: $preço`. As setas ficam em posição fixa e piscam rápido (somem ~0,12 s) ao apertar J (esquerda) ou K (direita). O preço fica vermelho quando não dá para construir: falta dinheiro ou a usina grande ainda está travada.
+- Sem mensagens de texto: construir onde não pode simplesmente não faz nada; o preço vermelho e a energia vermelha já avisam.
 
 **Visual:** o chão é liso: grama (aqua, o verde mais claro da paleta) com manchas de terra (marrom, o único da paleta; tons pastel não existem nas 16 cores fixas do simulador). Grama e terra usam o mesmo caractere cheio, só muda a cor. Os prédios são lotes quadrados de 15×15 pontos na cor do tipo, com o desenho em preto e uma linha preta separando os lotes. Desenhos em `arte/blocos.txt`.
 

@@ -6,10 +6,11 @@
 ;  Regras e balanceamento: DESIGN.md
 ;
 ;  Tela (40 x 30 caracteres):
-;    linha 0        : dinheiro, populacao, energia (consumo/producao), dia
+;    linha 0        : em branco (borda de cima)
+;    linha 1        : dinheiro, populacao, energia (consumo/producao), dia
 ;                     (cada dia e' uma atualizacao, 10 s)
-;    linha 2        : roleta (acao e preco) e mensagens
-;    linhas 1 e 3   : em branco (separam o painel)
+;    linha 2        : em branco
+;    linha 3        : roleta: CONSTRUIR: < acao > VALOR: $preco
 ;    linhas 4 a 29  : cidade, grid de 20 x 13 blocos de 2 x 2 caracteres
 ;
 ;  Convencoes:
@@ -61,8 +62,13 @@ dia : var #1            ; dia do jogo (1 por atualizacao, 10 s); prazo: dia 999
 subtick : var #1        ; 0 a 9: posicao na barra de ritmo
 voltas : var #1         ; voltas do laco principal desde o ultimo subtick
 resultado : var #1      ; 0 jogando, 1 venceu, 2 acabou o prazo
+setaVoltas : var #1     ; voltas que faltam para a seta da roleta reaparecer
 cursorAceso : var #1    ; 1 = cursor mostrando o contorno
 piscaVoltas : var #1    ; voltas desde a ultima troca do cursor
+
+; Voltas que a seta da roleta fica apagada ao apertar J ou K (~0,12 s).
+voltasSeta : var #1
+static voltasSeta + #0, #2000
 
 ; Voltas do laco principal entre duas trocas do cursor (pisca). Metade de
 ; voltasPorSub: o cursor troca a cada ~0,5 s.
@@ -184,6 +190,10 @@ iconePessoa : var #1
 static iconePessoa + #0, #116
 iconeRaio : var #1
 static iconeRaio + #0, #117
+iconeSeta_esq : var #1
+static iconeSeta_esq + #0, #118
+iconeSeta_dir : var #1
+static iconeSeta_dir + #0, #119
 ; <<< glifos
 
 ; Nomes da roleta: 6 nomes de 12 letras + '\0' (13 posicoes cada)
@@ -198,15 +208,7 @@ nomes : string "CASA        "
 ;  Textos
 ; ----------------------------------------------------------------------------
 txtHudA   : string "$                         /      DIA    "
-txtHudB   : string "J<              $      >K               "
-
-; mensagens: 12 letras, na linha 2, coluna 27
-msgLimpa    : string "            "
-msgOcupado  : string "LOTE OCUPADO"
-msgVazio    : string "LOTE VAZIO  "
-msgDinheiro : string "SEM DINHEIRO"
-msgLibera   : string "PRECISA 20K "
-msgApagao   : string "APAGAO!     "
+txtHudB   : string "CONSTRUIR:                VALOR: $      "
 
 ini1  : string "C I D A D E   I C M C"
 ini2  : string "VOCE E O PREFEITO. LEVE A CIDADE A"
@@ -246,6 +248,7 @@ Laco:
 Laco_semTecla:
     call Espera
     call Pisca
+    call AnimaSeta
     load r0, voltas
     inc r0
     store voltas, r0
@@ -272,6 +275,25 @@ Espera:
 Espera_loop:
     dec r0
     jnz Espera_loop
+    pop r0
+    rts
+
+; ----------------------------------------------------------------------------
+;  AnimaSeta: conta o tempo da seta apagada e, no fim, desenha as duas setas
+; ----------------------------------------------------------------------------
+AnimaSeta:
+    push r0
+    push r1
+    load r0, setaVoltas
+    loadn r1, #0
+    cmp r0, r1
+    jeq AnimaSeta_fim
+    dec r0
+    store setaVoltas, r0
+    jnz AnimaSeta_fim
+    call DesenhaSetas
+AnimaSeta_fim:
+    pop r1
     pop r0
     rts
 
@@ -409,12 +431,13 @@ DesenhaTudo:
     push r2
     call ApagaTela
     loadn r2, #0
-    loadn r0, #0
+    loadn r0, #40
     loadn r1, #txtHudA
     call ImprimeStr
-    loadn r0, #80
+    loadn r0, #120
     loadn r1, #txtHudB
     call ImprimeStr
+    call DesenhaSetas
     call Recalcula
     call DesenhaMapa
     call DesenhaHud
@@ -620,6 +643,8 @@ TrataTecla_ant:
     mod r0, r0, r1
     store ferr, r0
     call DesenhaRoleta
+    loadn r0, #131              ; seta da esquerda some por um instante
+    call ApagaSeta
     jmp TrataTecla_fim
 TrataTecla_prox:
     load r0, ferr               ; ferr = (ferr + 1) % 6
@@ -628,6 +653,8 @@ TrataTecla_prox:
     mod r0, r0, r1
     store ferr, r0
     call DesenhaRoleta
+    loadn r0, #144              ; seta da direita some por um instante
+    call ApagaSeta
     jmp TrataTecla_fim
 TrataTecla_aplica:
     call Aplica
@@ -727,7 +754,9 @@ NovaSel:
     rts
 
 ; ----------------------------------------------------------------------------
-;  Aplica: executa a acao da roleta no bloco selecionado
+;  Aplica: executa a acao da roleta no bloco selecionado. Se nao der (lote
+;  ocupado, vazio, sem dinheiro, usina grande travada), nao faz nada: o preco
+;  em vermelho no painel ja avisa.
 ; ----------------------------------------------------------------------------
 Aplica:
     push r0
@@ -748,7 +777,7 @@ Aplica:
     ; construir: so em bloco vazio
     loadn r4, #0
     cmp r2, r4
-    jne Aplica_ocupado
+    jne Aplica_fim
     inc r3                      ; r3 = tipo novo (ferr + 1)
     loadn r4, #5
     cmp r3, r4
@@ -756,14 +785,14 @@ Aplica:
     load r4, popul                ; usina grande pede 20 mil habitantes
     loadn r2, #2000
     cmp r4, r2
-    jle Aplica_libera
+    jle Aplica_fim
 Aplica_preco:
     loadn r4, #custo
     add r4, r4, r3
     loadi r4, r4                ; r4 = custo
     load r2, dinheiro
     cmp r2, r4
-    jle Aplica_semDinheiro
+    jle Aplica_fim
     sub r2, r2, r4
     store dinheiro, r2
     mov r1, r3
@@ -773,7 +802,7 @@ Aplica_preco:
 Aplica_demolir:
     loadn r4, #0
     cmp r2, r4
-    jeq Aplica_vazio
+    jeq Aplica_fim
     loadn r4, #custo            ; devolve metade do custo
     add r4, r4, r2
     loadi r1, r4
@@ -796,25 +825,6 @@ Aplica_redesenha:
     call Recalcula
     call DesenhaBloco
     call DesenhaHud
-    loadn r1, #msgLimpa
-    call Mensagem
-    jmp Aplica_fim
-
-Aplica_ocupado:
-    loadn r1, #msgOcupado
-    call Mensagem
-    jmp Aplica_fim
-Aplica_vazio:
-    loadn r1, #msgVazio
-    call Mensagem
-    jmp Aplica_fim
-Aplica_libera:
-    loadn r1, #msgLibera
-    call Mensagem
-    jmp Aplica_fim
-Aplica_semDinheiro:
-    loadn r1, #msgDinheiro
-    call Mensagem
 
 Aplica_fim:
     pop r4
@@ -1088,7 +1098,7 @@ Tick_recProx:
     load r0, apagao
     loadn r1, #0
     cmp r0, r1
-    jne Tick_avisaApagao
+    jne Tick_fimCidade          ; apagao: nada cresce (a energia ja fica vermelha)
     loadn r6, #0
 Tick_cresce:
     loadn r2, #totR
@@ -1127,13 +1137,6 @@ Tick_cresceProx:
     cmp r6, r3
     jne Tick_cresce
     call Recalcula
-    loadn r1, #msgLimpa
-    call Mensagem
-    jmp Tick_fimCidade
-
-Tick_avisaApagao:
-    loadn r1, #msgApagao
-    call Mensagem
 
 Tick_fimCidade:
     load r0, dia                ; cada atualizacao e' um dia
@@ -1230,20 +1233,20 @@ DesenhaHud:
 
     loadn r3, #0
     load r0, dinheiro
-    loadn r1, #5
+    loadn r1, #45
     loadn r2, #5
     call ImprimeNum
     load r0, iconePessoa        ; pessoinha branca no lugar de "POP"
-    loadn r1, #8
+    loadn r1, #48
     outchar r0, r1
     load r0, popul
-    loadn r1, #14
+    loadn r1, #54
     call ImprimeNum0
 
     load r0, iconeRaio          ; raio amarelo no lugar de "LUZ"
     loadn r1, #2816
     add r0, r0, r1
-    loadn r1, #20
+    loadn r1, #60
     outchar r0, r1
     load r0, apagao
     loadn r1, #0
@@ -1252,13 +1255,14 @@ DesenhaHud:
     loadn r3, #2304
 DesenhaHud_energia:
     load r0, cons
-    loadn r1, #25
+    loadn r1, #65
     loadn r2, #4
     call ImprimeNum
     load r0, prod
-    loadn r1, #30
+    loadn r1, #70
     call ImprimeNum
     call DesenhaDia
+    call DesenhaRoleta          ; o preco muda de cor com o dinheiro
 
     pop r5
     pop r3
@@ -1267,14 +1271,14 @@ DesenhaHud_energia:
     pop r0
     rts
 
-; DesenhaDia: dia com 3 digitos no fim da linha 0
+; DesenhaDia: dia com 3 digitos no fim da linha 1
 DesenhaDia:
     push r0
     push r1
     push r2
     push r3
     load r0, dia
-    loadn r1, #39
+    loadn r1, #79
     loadn r2, #3
     loadn r3, #0
     call ImprimeNum
@@ -1284,21 +1288,25 @@ DesenhaDia:
     pop r0
     rts
 
-; DesenhaRoleta: nome e preco da acao escolhida (linha 2)
+; DesenhaRoleta: nome e preco da acao escolhida (linha 3). O preco fica
+; vermelho quando nao da para construir (falta dinheiro ou a usina grande
+; ainda esta travada).
 DesenhaRoleta:
     push r0
     push r1
     push r2
     push r3
+    push r4
     load r0, ferr
     loadn r1, #13
     mul r1, r0, r1
     loadn r2, #nomes
     add r1, r1, r2
-    loadn r0, #83
+    loadn r0, #132
     loadn r2, #2816             ; amarelo
     call ImprimeStr
-    load r0, ferr               ; preco = custo[ferr + 1] (demolir mostra 0)
+
+    load r0, ferr               ; r0 = tipo da acao = ferr + 1 (demolir = 0)
     inc r0
     loadn r1, #6
     cmp r0, r1
@@ -1307,25 +1315,56 @@ DesenhaRoleta:
 DesenhaRoleta_preco:
     loadn r1, #custo
     add r1, r1, r0
-    loadi r0, r1
-    loadn r1, #101
+    loadi r4, r1                ; r4 = preco
+    loadn r3, #0                ; cor: branco, ou vermelho se nao da
+    load r1, dinheiro
+    cmp r1, r4
+    jle DesenhaRoleta_vermelho  ; falta dinheiro
+    loadn r1, #5
+    cmp r0, r1
+    jne DesenhaRoleta_imprime
+    load r1, popul              ; usina grande travada antes de 20 mil
+    loadn r2, #2000
+    cmp r1, r2
+    jeg DesenhaRoleta_imprime
+DesenhaRoleta_vermelho:
+    loadn r3, #2304
+DesenhaRoleta_imprime:
+    mov r0, r4
+    loadn r1, #158
     loadn r2, #5
-    loadn r3, #0
     call ImprimeNum
+    pop r4
     pop r3
     pop r2
     pop r1
     pop r0
     rts
 
-; Mensagem: r1 = texto de 12 letras, na linha 2 a partir da coluna 27
-Mensagem:
+; DesenhaSetas: setas brancas da roleta (colunas 11 e 24 da linha 3)
+DesenhaSetas:
     push r0
-    push r2
-    loadn r0, #107
-    loadn r2, #2304
-    call ImprimeStr
-    pop r2
+    push r1
+    load r0, iconeSeta_esq
+    loadn r1, #131
+    outchar r0, r1
+    load r0, iconeSeta_dir
+    loadn r1, #144
+    outchar r0, r1
+    pop r1
+    pop r0
+    rts
+
+; ApagaSeta: r0 = posicao da seta que some; AnimaSeta a traz de volta
+ApagaSeta:
+    push r0
+    push r1
+    call DesenhaSetas           ; a outra seta pode estar apagada ainda
+    loadn r1, #32
+    outchar r1, r0
+    load r0, voltasSeta
+    store setaVoltas, r0
+    pop r1
     pop r0
     rts
 
