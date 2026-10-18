@@ -12,7 +12,9 @@ import re
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
 RAIZ = os.path.join(AQUI, '..')
-LIVRES = list(range(1, 32)) + list(range(97, 123)) + [123, 124, 125, 126, 127, 64, 94, 95, 96, 35, 37, 38]
+# O 4 fica de fora: o simulador do professor nunca desenha o caractere 4
+# (View.cpp testa sym != 32, mas sym e' o codigo * 8).
+LIVRES = [c for c in range(1, 32) if c != 4] + list(range(97, 123)) + [123, 124, 125, 126, 127, 64, 94, 95, 96, 35, 37, 38]
 
 # (tipo, nivel) de cada bloco, na ordem do vetor glifo do jogo.asm
 POSICAO = {'grama': (0, 0), 'terra': (0, 1), 'grama2': (0, 2), 'casa1': (1, 1), 'casa2': (1, 2), 'casa3': (1, 3),

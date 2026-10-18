@@ -102,6 +102,8 @@ Consequência: conta que estoura 16 bits pode funcionar no simulador e falhar na
 
 O fundo de todo caractere é preto: não há como pôr duas cores no mesmo caractere nem desenhar um por cima do outro.
 
+**Defeito do simulador: o caractere 4 nunca aparece.** Em `View.cpp` (`ViewerExpose`) o simulador pula o desenho quando `sym == 32`, para não desenhar o espaço; mas `sym` é o código vezes 8, então quem é pulado é o código 4, e o espaço é desenhado normalmente. Não use o código 4 no charmap (o `gera_arte.py` já o deixa de fora, e o `print_tela.py` imita o defeito). Achado em 18/10/2026: o canto inferior direito da grama aparecia preto.
+
 ## Charmap
 
 - `charmap.mif`: 128 caracteres de 8×8, um bit por ponto, uma cor por caractere.

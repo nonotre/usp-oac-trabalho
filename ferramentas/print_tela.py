@@ -31,6 +31,8 @@ def desenha(tela, charmap, escala=2):
     px = img.load()
     for pos, v in enumerate(tela):
         c, cor = v & 0x7f, RGB[(v >> 8) & 15]
+        if c == 4:          # o simulador do professor nunca desenha o 4
+            continue
         x0, y0 = (pos % 40) * 8, (pos // 40) * 8
         for y in range(8):
             linha = charmap[c * 8 + y]

@@ -125,64 +125,64 @@ glifo : var #96
 static glifo + #0, #1          ; grama
 static glifo + #1, #2
 static glifo + #2, #3
-static glifo + #3, #4
-static glifo + #4, #9          ; terra
-static glifo + #5, #10
-static glifo + #6, #11
-static glifo + #7, #12
-static glifo + #8, #5          ; grama2
-static glifo + #9, #6
-static glifo + #10, #7
-static glifo + #11, #8
-static glifo + #20, #17          ; casa1
-static glifo + #21, #18
-static glifo + #22, #19
-static glifo + #23, #20
-static glifo + #24, #21          ; casa2
-static glifo + #25, #22
-static glifo + #26, #23
-static glifo + #27, #24
-static glifo + #28, #25          ; casa3
-static glifo + #29, #26
-static glifo + #30, #27
-static glifo + #31, #28
-static glifo + #36, #29          ; comercio1
-static glifo + #37, #30
-static glifo + #38, #31
-static glifo + #39, #97
-static glifo + #40, #98          ; comercio2
-static glifo + #41, #99
-static glifo + #42, #100
-static glifo + #43, #101
-static glifo + #44, #102          ; comercio3
-static glifo + #45, #103
-static glifo + #46, #104
-static glifo + #47, #105
-static glifo + #52, #106          ; industria1
-static glifo + #53, #107
-static glifo + #54, #108
-static glifo + #55, #109
-static glifo + #56, #110          ; industria2
-static glifo + #57, #111
-static glifo + #58, #112
-static glifo + #59, #113
-static glifo + #60, #114          ; industria3
-static glifo + #61, #115
-static glifo + #62, #116
-static glifo + #63, #117
-static glifo + #68, #118          ; usina_pequena
-static glifo + #69, #119
-static glifo + #70, #120
-static glifo + #71, #121
-static glifo + #84, #122          ; usina_grande
-static glifo + #85, #123
-static glifo + #86, #124
-static glifo + #87, #125
+static glifo + #3, #5
+static glifo + #4, #10          ; terra
+static glifo + #5, #11
+static glifo + #6, #12
+static glifo + #7, #13
+static glifo + #8, #6          ; grama2
+static glifo + #9, #7
+static glifo + #10, #8
+static glifo + #11, #9
+static glifo + #20, #18          ; casa1
+static glifo + #21, #19
+static glifo + #22, #20
+static glifo + #23, #21
+static glifo + #24, #22          ; casa2
+static glifo + #25, #23
+static glifo + #26, #24
+static glifo + #27, #25
+static glifo + #28, #26          ; casa3
+static glifo + #29, #27
+static glifo + #30, #28
+static glifo + #31, #29
+static glifo + #36, #30          ; comercio1
+static glifo + #37, #31
+static glifo + #38, #97
+static glifo + #39, #98
+static glifo + #40, #99          ; comercio2
+static glifo + #41, #100
+static glifo + #42, #101
+static glifo + #43, #102
+static glifo + #44, #103          ; comercio3
+static glifo + #45, #104
+static glifo + #46, #105
+static glifo + #47, #106
+static glifo + #52, #107          ; industria1
+static glifo + #53, #108
+static glifo + #54, #109
+static glifo + #55, #110
+static glifo + #56, #111          ; industria2
+static glifo + #57, #112
+static glifo + #58, #113
+static glifo + #59, #114
+static glifo + #60, #115          ; industria3
+static glifo + #61, #116
+static glifo + #62, #117
+static glifo + #63, #118
+static glifo + #68, #119          ; usina_pequena
+static glifo + #69, #120
+static glifo + #70, #121
+static glifo + #71, #122
+static glifo + #84, #123          ; usina_grande
+static glifo + #85, #124
+static glifo + #86, #125
+static glifo + #87, #126
 glifoSel : var #4
-static glifoSel + #0, #13          ; cursor
-static glifoSel + #1, #14
-static glifoSel + #2, #15
-static glifoSel + #3, #16
+static glifoSel + #0, #14          ; cursor
+static glifoSel + #1, #15
+static glifoSel + #2, #16
+static glifoSel + #3, #17
 ; <<< glifos
 
 ; Nomes da roleta: 6 nomes de 12 letras + '\0' (13 posicoes cada)
