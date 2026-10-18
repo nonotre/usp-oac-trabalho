@@ -29,7 +29,7 @@ Cidade simplificada no estilo SimCity (SNES). O objetivo é chegar a 100 mil hab
 | Usina pequena | produz 40 de energia | $400 |
 | Usina grande | produz 300; liberada com 20 mil habitantes | $2500 |
 
-**População:** a cidade comporta `mín(casas, empregos, serviço)`. A cada atualização chega metade do que falta até esse limite; se a população está acima, sai um quarto do excesso. Construir casa não traz gente sozinho.
+**População:** a cidade comporta `mín(casas, empregos, serviço + empregos / 10)`. A indústria atrai um pouco de gente mesmo sem comércio (quem vem atrás de emprego): 10% dos empregos contam como serviço. Com 1 casa e 1 indústria e nenhum comércio, chegam umas 10 pessoas. A cada atualização chega metade do que falta até esse limite; se a população está acima, sai um quarto do excesso. Construir casa não traz gente sozinho.
 
 **Dinheiro, sem imposto:** quem está ocupado paga a conta de luz. A receita de cada tipo é `3 × energia consumida × fração ocupada`. Casa vazia e fábrica sem trabalhador não pagam. A indústria consome mais e paga mais.
 
@@ -95,7 +95,7 @@ Marrom claro não existe na paleta: o "marrom" do simulador é vermelho escuro (
 
 **Telas iniciais (duas):**
 1. Título: "CIDADE ICMC", uma fileira de prédios desenhados e a história ("CONQUISTE CEM MIL PESSOAS / ANTES QUE SEU MANDATO ACABE"). Pisca "APERTE ENTER PARA TUTORIAL".
-2. Tutorial: mini-título LEGENDA (desenho de cada construção, nome na cor dela, frase curta; a regra do dinheiro; "a primeira usina é de graça") e mini-título CONTROLES (tecla em verde, ação em branco). Pisca "APERTE ENTER PARA JOGAR".
+2. Tutorial: mini-título LEGENDA (desenho de cada construção, nome na cor dela, frase curta) e mini-título CONTROLES (tecla em verde, ação em branco). Pisca "APERTE ENTER PARA JOGAR".
 
 Textos e desenhos das telas ficam em tabelas lidas por `ImprimeTabela` (posição, cor, texto) e `DesenhaTabGlifos` (posição, desenho, cor). A tela final também pisca o "APERTE ENTER"
 
@@ -108,3 +108,5 @@ Textos e desenhos das telas ficam em tabelas lidas por `ImprimeTabela` (posiçã
 | 4 construções a cada 10 s | 9,2 min | 9,7 min | 59 |
 | 2 construções | 12,7 min | 12,8 min | 78 |
 | 1 construção | 19,8 min | 20,3 min | 123 |
+
+A regra da indústria atrair gente (empregos / 10 como serviço) entrou em 18/10/2026 sem nova rodada de balanceamento.

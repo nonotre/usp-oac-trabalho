@@ -259,8 +259,6 @@ tutInd    : string "INDUSTRIA"
 tutIndD   : string "SEM EMPREGO O POVO SAI"
 tutUsi    : string "USINA"
 tutUsiD   : string "DA ENERGIA, MAS TEM LIMITE"
-tutLuz    : string "QUEM MORA E TRABALHA PAGA A LUZ"
-tutGratis : string "A PRIMEIRA USINA E DE GRACA"
 tutCtl    : string "CONTROLES"
 tutT1     : string "WASD/SETAS"
 tutA1     : string "ANDAR"
@@ -270,7 +268,7 @@ tutT3     : string "ESPACO"
 tutA3     : string "CONSTRUIR"
 tutT4     : string "+"
 tutA4     : string "ACELERA"
-tabTutorial : var #61
+tabTutorial : var #55
 static tabTutorial + #0, #96
 static tabTutorial + #1, #2816
 static tabTutorial + #2, #tutLeg
@@ -298,40 +296,34 @@ static tabTutorial + #23, #tutUsi
 static tabTutorial + #24, #608
 static tabTutorial + #25, #0
 static tabTutorial + #26, #tutUsiD
-static tabTutorial + #27, #684
-static tabTutorial + #28, #0
-static tabTutorial + #29, #tutLuz
-static tabTutorial + #30, #724
-static tabTutorial + #31, #0
-static tabTutorial + #32, #tutGratis
-static tabTutorial + #33, #815
-static tabTutorial + #34, #2816
-static tabTutorial + #35, #tutCtl
-static tabTutorial + #36, #884
+static tabTutorial + #27, #815
+static tabTutorial + #28, #2816
+static tabTutorial + #29, #tutCtl
+static tabTutorial + #30, #884
+static tabTutorial + #31, #3584
+static tabTutorial + #32, #tutT1
+static tabTutorial + #33, #895
+static tabTutorial + #34, #0
+static tabTutorial + #35, #tutA1
+static tabTutorial + #36, #905
 static tabTutorial + #37, #3584
-static tabTutorial + #38, #tutT1
-static tabTutorial + #39, #895
+static tabTutorial + #38, #tutT2
+static tabTutorial + #39, #909
 static tabTutorial + #40, #0
-static tabTutorial + #41, #tutA1
-static tabTutorial + #42, #905
+static tabTutorial + #41, #tutA2
+static tabTutorial + #42, #924
 static tabTutorial + #43, #3584
-static tabTutorial + #44, #tutT2
-static tabTutorial + #45, #909
+static tabTutorial + #44, #tutT3
+static tabTutorial + #45, #935
 static tabTutorial + #46, #0
-static tabTutorial + #47, #tutA2
-static tabTutorial + #48, #924
+static tabTutorial + #47, #tutA3
+static tabTutorial + #48, #945
 static tabTutorial + #49, #3584
-static tabTutorial + #50, #tutT3
-static tabTutorial + #51, #935
+static tabTutorial + #50, #tutT4
+static tabTutorial + #51, #949
 static tabTutorial + #52, #0
-static tabTutorial + #53, #tutA3
-static tabTutorial + #54, #945
-static tabTutorial + #55, #3584
-static tabTutorial + #56, #tutT4
-static tabTutorial + #57, #949
-static tabTutorial + #58, #0
-static tabTutorial + #59, #tutA4
-static tabTutorial + #60, #65535          ; fim da tabela
+static tabTutorial + #53, #tutA4
+static tabTutorial + #54, #65535          ; fim da tabela
 glfTutorial : var #13
 static glfTutorial + #0, #204
 static glfTutorial + #1, #20
@@ -1129,9 +1121,16 @@ Tick:
 
     call Recalcula
 
-    ; r0 = sustentavel = min(totR, totC, totI)
+    ; r0 = sustentavel = min(totR, totC + totI / 10, totI)
+    ; (a industria atrai um pouco de gente mesmo sem comercio: quem vem
+    ; atras de emprego; 10% dos empregos contam como servico)
+    load r0, totI
+    loadn r1, #10
+    div r1, r0, r1
+    load r0, totC
+    call SomaSat                ; r0 = totC + totI / 10
+    mov r1, r0
     load r0, totR
-    load r1, totC
     cmp r1, r0
     jeg Tick_min2
     mov r0, r1

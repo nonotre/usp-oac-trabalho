@@ -28,7 +28,7 @@ def tick(s, P):
     cap, cons = producao(s, P), consumo(s, P)
     luz = min(1, cap / cons) if cons else 1
     tot = {t: sum(P['CAP'][l] for l in s[t]) * luz for t in 'RCI'}   # casas, servico, empregos
-    sust = min(tot.values())
+    sust = min(tot['R'], tot['I'], tot['C'] + tot['I'] / 10)   # industria atrai um pouco
     p = s['pop']
     if p < sust:
         p += max(1, int((sust - p) * P['CHEGA']))
