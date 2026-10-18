@@ -95,7 +95,7 @@ Marrom claro não existe na paleta: o "marrom" do simulador é vermelho escuro (
 
 ## Conferência com a simulação
 
-`ferramentas/joga_teste.py` joga o `jogo.mif` no emulador com a estratégia do `sim.py` (1 atualização = 10 dias):
+`ferramentas/joga_teste.py` joga o `jogo.mif` no emulador com a estratégia do `sim.py` (1 atualização = 1 dia):
 
 | Jogador | `sim.py` | `jogo.asm` | Dia da vitória |
 |---|---|---|---|
