@@ -24,7 +24,7 @@ POSICAO = {'chao': [(0, 0), (0, 1)], 'casa1': [(1, 1)], 'casa2': [(1, 2)], 'casa
            'comercio1': [(2, 1)], 'comercio2': [(2, 2)], 'comercio3': [(2, 3)],
            'industria1': [(3, 1)], 'industria2': [(3, 2)], 'industria3': [(3, 3)],
            'usina_pequena': [(4, 1)], 'usina_grande': [(5, 1)]}
-CHAO = {'chao'}   # sem a linha preta do grid
+CHAO = {'chao', 'cursor'}   # sem a linha preta do grid (ocupam os 16 x 16)
 
 
 def le_blocos():

@@ -509,21 +509,7 @@ DesenhaBloco_temNivel:
     loadn r1, #glifo
     add r5, r5, r1
 
-    ; cursor: o bloco selecionado alterna entre o contorno branco e o
-    ; proprio bloco (cada caractere tem uma cor so, entao nao da para
-    ; desenhar o contorno por cima do bloco)
-    load r1, sel
-    cmp r0, r1
-    jne DesenhaBloco_naoSel
-    load r1, cursorAceso
-    loadn r6, #0
-    cmp r1, r6
-    jeq DesenhaBloco_naoSel
-    loadn r5, #glifoSel
-    loadn r6, #0                ; branco
-    jmp DesenhaBloco_desenha
-
-DesenhaBloco_naoSel:
+    ; cor normal do bloco
     loadn r1, #corTipo
     add r1, r1, r3
     loadi r6, r1
@@ -533,15 +519,33 @@ DesenhaBloco_naoSel:
     loadn r1, #corTerreno       ; chao: cor do terreno, nao depende de luz
     add r1, r1, r4
     loadi r6, r1
-    jmp DesenhaBloco_desenha
+    jmp DesenhaBloco_cursor
 DesenhaBloco_predio:
     loadn r1, #luz
     add r1, r1, r0
     loadi r1, r1
     loadn r4, #0
     cmp r1, r4
-    jne DesenhaBloco_desenha
+    jne DesenhaBloco_cursor
     loadn r6, #1024             ; sem luz: azul marinho (apagado)
+
+    ; cursor (quando aceso): cada caractere tem uma cor so, entao nao da para
+    ; por um contorno branco por cima. No chao, uma borda preta e' recortada
+    ; e o miolo fica na cor do terreno; no predio, o desenho acende em branco.
+DesenhaBloco_cursor:
+    load r1, sel
+    cmp r0, r1
+    jne DesenhaBloco_desenha
+    load r1, cursorAceso
+    loadn r4, #0
+    cmp r1, r4
+    jeq DesenhaBloco_desenha
+    cmp r3, r4
+    jne DesenhaBloco_acende
+    loadn r5, #glifoSel         ; chao com a borda recortada
+    jmp DesenhaBloco_desenha
+DesenhaBloco_acende:
+    loadn r6, #0                ; predio em branco
 
 DesenhaBloco_desenha:
     loadi r1, r5
