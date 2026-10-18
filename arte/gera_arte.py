@@ -1,8 +1,9 @@
 """Gera charmap.mif e a tabela de glifos do jogo.asm a partir de blocos.txt.
 
 Cada bloco 16x16 vira 4 caracteres (sup. esq., sup. dir., inf. esq., inf. dir.)
-nos codigos livres do charmap: 1 a 31 e 97 a 122 (as minusculas, que o jogo
-nao usa em texto). As letras, numeros e simbolos continuam os do professor.
+nos codigos livres do charmap: 1 a 31, as minusculas (97 a 122) e simbolos
+que o jogo nao imprime ({ | } ~ @ ^ _ ` # % &). Letras maiusculas, numeros e
+os simbolos usados nos textos continuam os do professor.
 
 Uso: python3 arte/gera_arte.py   (a partir de oac/usp-oac-trabalho/)
 """
@@ -11,13 +12,16 @@ import re
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
 RAIZ = os.path.join(AQUI, '..')
-LIVRES = list(range(1, 32)) + list(range(97, 123))
+LIVRES = list(range(1, 32)) + list(range(97, 123)) + [123, 124, 125, 126, 127, 64, 94, 95, 96, 35, 37, 38]
 
 # (tipo, nivel) de cada bloco, na ordem do vetor glifo do jogo.asm
-POSICAO = {'chao': (0, 0), 'casa1': (1, 1), 'casa2': (1, 2), 'casa3': (1, 3),
+POSICAO = {'grama': (0, 0), 'terra': (0, 1), 'grama2': (0, 2), 'casa1': (1, 1), 'casa2': (1, 2), 'casa3': (1, 3),
            'comercio1': (2, 1), 'comercio2': (2, 2), 'comercio3': (2, 3),
            'industria1': (3, 1), 'industria2': (3, 2), 'industria3': (3, 3),
            'usina_pequena': (4, 1), 'usina_grande': (5, 1)}
+
+
+CHAO = {'grama', 'grama2', 'terra'}   # sem a linha preta do grid
 
 
 def le_blocos():
@@ -29,9 +33,13 @@ def le_blocos():
         if re.fullmatch(r'[a-z_0-9]+', l):
             nome, linhas = l, []
             continue
-        linhas.append((l + '.' * 16)[:15] + '.')   # coluna 16 sempre preta
+        if nome in CHAO:
+            linhas.append((l + '#' * 16)[:16])
+        else:
+            linhas.append((l + '.' * 16)[:15] + '.')   # coluna 16 preta
         if len(linhas) == 16:
-            linhas[15] = '.' * 16                   # linha 16 sempre preta
+            if nome not in CHAO:
+                linhas[15] = '.' * 16                   # linha 16 preta
             blocos[nome] = linhas
             nome = None
     return blocos

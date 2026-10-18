@@ -32,6 +32,8 @@ tipo : var #240         ; tipo de cada bloco: 0 vazio, 1 casa, 2 comercio,
                         ; 3 industria, 4 usina pequena, 5 usina grande
 nivel : var #240        ; nivel de cada bloco (1 a 3; usina sempre 1)
 luz : var #240          ; 1 se o bloco recebeu energia na ultima conta
+terreno : var #240      ; chao de cada bloco: 0 grama, 1 terra, 2 grama (outro desenho)
+semente : var #1        ; estado do gerador de numeros aleatorios
 
 sel : var #1            ; bloco selecionado (0 a 239)
 ferr : var #1           ; acao da roleta: 0 casa ... 4 usina grande, 5 demolir
@@ -61,14 +63,18 @@ cursorAceso : var #1    ; 1 = cursor mostrando o contorno
 piscaVoltas : var #1    ; voltas desde a ultima troca do cursor
 
 ; Voltas do laco principal entre duas trocas do cursor (pisca). Metade de
-; voltasPorSub: com o ritmo calibrado, o cursor troca a cada ~0,5 s.
+; voltasPorSub: o cursor troca a cada ~0,5 s.
 voltasPisca : var #1
-static voltasPisca + #0, #1500
+static voltasPisca + #0, #8050
 
-; Voltas do laco principal por subtick (10 subticks = 1 atualizacao = 10 s).
-; Calibrar no simulador usado: ver FERRAMENTAS.md.
+; Ritmo. Cada volta do laco principal custa cerca de 2 * esperaN + 31
+; instrucoes. O simulador do professor roda ~32,7 milhoes de instrucoes por
+; segundo (medido em 18/10/2026), entao 16100 voltas = 1 s = 1 subtick e
+; 10 subticks = 1 atualizacao = 10 s. Calibrar: ver FERRAMENTAS.md.
+esperaN : var #1
+static esperaN + #0, #1000
 voltasPorSub : var #1
-static voltasPorSub + #0, #3000
+static voltasPorSub + #0, #16100
 
 ; ----------------------------------------------------------------------------
 ;  Tabelas
@@ -82,12 +88,17 @@ static custo + #4, #400
 static custo + #5, #2500
 
 corTipo : var #6
-static corTipo + #0, #3584      ; chao: aqua (verde claro)
+static corTipo + #0, #3584      ; chao (a cor real vem de corTerreno)
 static corTipo + #1, #2816      ; casa: amarelo
 static corTipo + #2, #3328      ; comercio: rosa
 static corTipo + #3, #2048      ; industria: cinza
 static corTipo + #4, #2304      ; usinas: vermelho
 static corTipo + #5, #2304
+
+corTerreno : var #3     ; cor do chao por terreno
+static corTerreno + #0, #3584   ; grama: aqua (verde claro)
+static corTerreno + #1, #256    ; terra: marrom
+static corTerreno + #2, #3584
 
 capNivel : var #4       ; casas / servico / empregos por nivel, em dezenas
 static capNivel + #0, #0
@@ -111,59 +122,67 @@ static energia + #15, #10
 ; arte/blocos.txt; arte/gera_arte.py gera o charmap.mif e a tabela abaixo.
 ; >>> glifos (gerado por arte/gera_arte.py a partir de arte/blocos.txt)
 glifo : var #96
-static glifo + #0, #1          ; chao
+static glifo + #0, #1          ; grama
 static glifo + #1, #2
 static glifo + #2, #3
 static glifo + #3, #4
-static glifo + #20, #9          ; casa1
-static glifo + #21, #10
-static glifo + #22, #11
-static glifo + #23, #12
-static glifo + #24, #13          ; casa2
-static glifo + #25, #14
-static glifo + #26, #15
-static glifo + #27, #16
-static glifo + #28, #17          ; casa3
-static glifo + #29, #18
-static glifo + #30, #19
-static glifo + #31, #20
-static glifo + #36, #21          ; comercio1
-static glifo + #37, #22
-static glifo + #38, #23
-static glifo + #39, #24
-static glifo + #40, #25          ; comercio2
-static glifo + #41, #26
-static glifo + #42, #27
-static glifo + #43, #28
-static glifo + #44, #29          ; comercio3
-static glifo + #45, #30
-static glifo + #46, #31
-static glifo + #47, #97
-static glifo + #52, #98          ; industria1
-static glifo + #53, #99
-static glifo + #54, #100
-static glifo + #55, #101
-static glifo + #56, #102          ; industria2
-static glifo + #57, #103
-static glifo + #58, #104
-static glifo + #59, #105
-static glifo + #60, #106          ; industria3
-static glifo + #61, #107
-static glifo + #62, #108
-static glifo + #63, #109
-static glifo + #68, #110          ; usina_pequena
-static glifo + #69, #111
-static glifo + #70, #112
-static glifo + #71, #113
-static glifo + #84, #114          ; usina_grande
-static glifo + #85, #115
-static glifo + #86, #116
-static glifo + #87, #117
+static glifo + #4, #9          ; terra
+static glifo + #5, #10
+static glifo + #6, #11
+static glifo + #7, #12
+static glifo + #8, #5          ; grama2
+static glifo + #9, #6
+static glifo + #10, #7
+static glifo + #11, #8
+static glifo + #20, #17          ; casa1
+static glifo + #21, #18
+static glifo + #22, #19
+static glifo + #23, #20
+static glifo + #24, #21          ; casa2
+static glifo + #25, #22
+static glifo + #26, #23
+static glifo + #27, #24
+static glifo + #28, #25          ; casa3
+static glifo + #29, #26
+static glifo + #30, #27
+static glifo + #31, #28
+static glifo + #36, #29          ; comercio1
+static glifo + #37, #30
+static glifo + #38, #31
+static glifo + #39, #97
+static glifo + #40, #98          ; comercio2
+static glifo + #41, #99
+static glifo + #42, #100
+static glifo + #43, #101
+static glifo + #44, #102          ; comercio3
+static glifo + #45, #103
+static glifo + #46, #104
+static glifo + #47, #105
+static glifo + #52, #106          ; industria1
+static glifo + #53, #107
+static glifo + #54, #108
+static glifo + #55, #109
+static glifo + #56, #110          ; industria2
+static glifo + #57, #111
+static glifo + #58, #112
+static glifo + #59, #113
+static glifo + #60, #114          ; industria3
+static glifo + #61, #115
+static glifo + #62, #116
+static glifo + #63, #117
+static glifo + #68, #118          ; usina_pequena
+static glifo + #69, #119
+static glifo + #70, #120
+static glifo + #71, #121
+static glifo + #84, #122          ; usina_grande
+static glifo + #85, #123
+static glifo + #86, #124
+static glifo + #87, #125
 glifoSel : var #4
-static glifoSel + #0, #5          ; cursor
-static glifoSel + #1, #6
-static glifoSel + #2, #7
-static glifoSel + #3, #8
+static glifoSel + #0, #13          ; cursor
+static glifoSel + #1, #14
+static glifoSel + #2, #15
+static glifoSel + #3, #16
 ; <<< glifos
 
 ; Nomes da roleta: 6 nomes de 12 letras + '\0' (13 posicoes cada)
@@ -249,7 +268,7 @@ Laco_fim:
 ; ----------------------------------------------------------------------------
 Espera:
     push r0
-    loadn r0, #100
+    load r0, esperaN
 Espera_loop:
     dec r0
     jnz Espera_loop
@@ -342,6 +361,8 @@ NovoJogo_zera:
     store dinheiro, r0
     loadn r0, #130              ; selecao logo abaixo da vila
     store sel, r0
+
+    call GeraTerreno
 
     ; vila inicial na linha 5 do grid: usina, casa, comercio, industria
     loadn r3, #1
@@ -461,6 +482,13 @@ DesenhaBloco:
     loadn r1, #nivel
     add r1, r1, r0
     loadi r4, r1                ; r4 = nivel
+    loadn r1, #0                ; chao: o "nivel" e' o terreno (grama/terra)
+    cmp r3, r1
+    jne DesenhaBloco_temNivel
+    loadn r1, #terreno
+    add r1, r1, r0
+    loadi r4, r1
+DesenhaBloco_temNivel:
 
     ; r5 = glifo + (tipo * 4 + nivel) * 4
     loadn r1, #4
@@ -490,7 +518,12 @@ DesenhaBloco_naoSel:
     loadi r6, r1
     loadn r1, #0
     cmp r3, r1
-    jeq DesenhaBloco_desenha    ; vazio nao depende de luz
+    jne DesenhaBloco_predio
+    loadn r1, #corTerreno       ; chao: cor do terreno, nao depende de luz
+    add r1, r1, r4
+    loadi r6, r1
+    jmp DesenhaBloco_desenha
+DesenhaBloco_predio:
     loadn r1, #luz
     add r1, r1, r0
     loadi r1, r1
@@ -1457,12 +1490,138 @@ SomaSat_cheio:
     pop r2
     rts
 
+; Rand: r0 = numero sorteado de 0 a 255
+;   gerador congruente: semente = (semente * 25173 + 13849) mod 65536;
+;   usa os 8 bits de cima, que variam mais que os de baixo
+Rand:
+    push r1
+    load r0, semente
+    loadn r1, #25173
+    mul r0, r0, r1
+    loadn r1, #13849
+    add r0, r0, r1
+    loadn r1, #65535
+    and r0, r0, r1
+    store semente, r0
+    shiftr0 r0, #8
+    pop r1
+    rts
+
+; GeraTerreno: grama em todo o mapa (1 em 4 com o outro desenho) e 6
+; manchas de terra de ate 3 x 3 blocos em lugares sorteados
+GeraTerreno:
+    push r0
+    push r1
+    push r2
+    push r3
+    push r4
+    push r5
+    push r6
+    push r7
+
+    loadn r1, #0
+GeraTerreno_grama:
+    call Rand
+    loadn r2, #4
+    mod r0, r0, r2
+    loadn r3, #0                ; grama
+    loadn r2, #0
+    cmp r0, r2
+    jne GeraTerreno_grava
+    loadn r3, #2                ; grama com o outro desenho
+GeraTerreno_grava:
+    loadn r2, #terreno
+    add r2, r2, r1
+    storei r2, r3
+    inc r1
+    loadn r2, #240
+    cmp r1, r2
+    jne GeraTerreno_grama
+
+    loadn r7, #6                ; r7 = manchas que faltam
+GeraTerreno_mancha:
+    call Rand                   ; centro sorteado: r5 = linha, r6 = coluna
+    loadn r2, #240
+    mod r0, r0, r2
+    loadn r2, #20
+    div r5, r0, r2
+    mod r6, r0, r2
+    loadn r3, #0                ; r3 = dl (0 a 2: linha - 1 a linha + 1)
+GeraTerreno_dl:
+    loadn r4, #0                ; r4 = dc
+GeraTerreno_dc:
+    add r1, r5, r3              ; r1 = linha + dl (1 a 12 = dentro do mapa)
+    loadn r2, #0
+    cmp r1, r2
+    jeq GeraTerreno_pula
+    loadn r2, #13
+    cmp r1, r2
+    jeq GeraTerreno_pula
+    add r2, r6, r4              ; r2 = coluna + dc (1 a 20 = dentro)
+    push r3
+    loadn r3, #0
+    cmp r2, r3
+    pop r3
+    jeq GeraTerreno_pula
+    push r3
+    loadn r3, #21
+    cmp r2, r3
+    pop r3
+    jeq GeraTerreno_pula
+    dec r1                      ; r1 = bloco = (linha - 1) * 20 + (coluna - 1)
+    dec r2
+    push r3
+    loadn r3, #20
+    mul r1, r1, r3
+    add r1, r1, r2
+    pop r3
+    loadn r2, #1                ; o centro sempre vira terra, os vizinhos
+    cmp r3, r2                  ; so com chance de 1/2
+    jne GeraTerreno_sorteia
+    cmp r4, r2
+    jeq GeraTerreno_terra
+GeraTerreno_sorteia:
+    call Rand
+    loadn r2, #2
+    mod r0, r0, r2
+    loadn r2, #0
+    cmp r0, r2
+    jne GeraTerreno_pula
+GeraTerreno_terra:
+    loadn r2, #terreno
+    add r2, r2, r1
+    loadn r0, #1
+    storei r2, r0
+GeraTerreno_pula:
+    inc r4
+    loadn r2, #3
+    cmp r4, r2
+    jne GeraTerreno_dc
+    inc r3
+    cmp r3, r2
+    jne GeraTerreno_dl
+    dec r7
+    jnz GeraTerreno_mancha
+
+    pop r7
+    pop r6
+    pop r5
+    pop r4
+    pop r3
+    pop r2
+    pop r1
+    pop r0
+    rts
+
 ; EsperaEnter: espera a tecla ENTER (13)
 EsperaEnter:
     push r0
     push r1
     loadn r1, #13
 EsperaEnter_loop:
+    load r0, semente            ; quanto tempo o jogador demora muda a semente
+    inc r0
+    store semente, r0
     inchar r0
     cmp r0, r1
     jne EsperaEnter_loop

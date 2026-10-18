@@ -113,9 +113,16 @@ O fundo de todo caractere é preto: não há como pôr duas cores no mesmo carac
 
 ## Calibrar o ritmo (10 s por atualização)
 
-O jogo conta voltas do laço principal: `voltasPorSub` (início do `jogo.asm`) voltas = 1 subtick; 10 subticks = 1 atualização. Para calibrar no simulador usado:
+Não há relógio: o jogo conta voltas do laço principal. Cada volta custa cerca de `2 × esperaN + 31` instruções; `voltasPorSub` voltas = 1 subtick (1 s); 10 subticks = 1 atualização. `voltasPisca` (metade de `voltasPorSub`) é o pisca do cursor. Os três ficam no começo do `jogo.asm`.
 
-1. Rodar o jogo e cronometrar 10 atualizações (10 voltas completas da barra RITMO).
-2. `voltasPorSub novo = 3000 × 100 s / tempo medido`.
+**Velocidade medida (18/10/2026, nesta máquina): o simulador do professor roda ~32,7 milhões de instruções por segundo.** Com `esperaN = 1000` (2031 instruções por volta), `voltasPorSub = 16100`.
 
-Cada volta tem cerca de 220 instruções. No `jogar.py` (até 1 milhão de instruções por segundo) 3000 voltas dão uma atualização a cada 6 a 7 s.
+Como medir de novo (sem precisar apertar teclas na janela): copiar `Simulator_Source/` para uma pasta temporária e mudar duas coisas.
+- `main.cpp`, depois de `new Controller(m)`: um `g_timeout_add` de 1 s que chama `switchExecucao()` entre `gdk_threads_enter()` e `gdk_threads_leave()` (sem a trava o GTK aborta).
+- `Model.cpp`, em `processaAutomatico`: contar as instruções e imprimir `instruções / segundos` a cada 2^20.
+
+Compilar como o simulador normal, rodar uns 8 s com `timeout 9 ./simbench jogo.mif charmap.mif` e ler a última linha.
+
+Regra: `voltasPorSub = instruções por segundo / (2 × esperaN + 31)`; mantenha abaixo de 65535 (se passar, aumente `esperaN`).
+
+O emulador Python (~1 milhão por segundo) fica ~30 vezes mais lento que o simulador; para testar nele, use `+` para adiantar o tempo.

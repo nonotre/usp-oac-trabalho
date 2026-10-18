@@ -79,11 +79,14 @@ Fica para depois: poluição.
 - Linha 3: roleta, com nome e preço.
 - Linha 4: barra de ritmo (10 partes = 1 atualização) e mensagens.
 
-**Visual:** cada bloco é um quadrado de 15×15 pontos aceso na cor do tipo, com o desenho em preto, e uma linha preta de 1 ponto entre os blocos (o grid). Desenhos em `arte/blocos.txt`.
+**Visual:** o chão é um mapa contínuo de grama verde clara com tufinhos, com manchas de terra marrom. Os prédios são lotes quadrados de 15×15 pontos na cor do tipo, com o desenho em preto e uma linha preta separando os lotes. Desenhos em `arte/blocos.txt`.
+
+**Mapa aleatório:** a cada partida, grama em tudo (1 em 4 com outro desenho de tufos) e 6 manchas de terra de até 3×3 blocos (centro sempre, vizinhos com chance de 1/2). A semente muda com o tempo que o jogador leva para apertar Enter na tela inicial. A terra é só visual: dá para construir em cima e, ao demolir, ela volta.
 
 | Bloco | Cor | Níveis |
 |---|---|---|
-| Chão | aqua (verde menta claro) | |
+| Grama | aqua (verde menta claro) | |
+| Terra | marrom (sai avermelhado: é o único marrom da paleta) | |
 | Casa | amarelo | casinha, duas casas, prédio |
 | Comércio | rosa | loja, galeria, torre |
 | Indústria | cinza | fábrica pequena, média, grande |
